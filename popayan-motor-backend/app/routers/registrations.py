@@ -8,7 +8,7 @@ from app.core.database import get_db
 from app.core.errors import AppError
 from app.dependencies import get_current_member, is_admin
 from app.models import Member, Registration
-from app.schemas.registration import RegistrationIn, RegistrationOut
+from app.schemas.registration import RegistrationIn, RegistrationOut, RegistrationVehicleIn
 from app.services import registration_service
 
 router = APIRouter(prefix="/registrations", tags=["Registrations"])
@@ -30,7 +30,7 @@ def list_registrations(
 ):
     query = (
         select(Registration)
-        .options(joinedload(Registration.event), joinedload(Registration.member))
+        .options(joinedload(Registration.event), joinedload(Registration.member), joinedload(Registration.vehicle))
         .order_by(Registration.registration_date.desc())
     )
     if is_admin(current):
@@ -61,7 +61,19 @@ def get_registration(
 def create_registration(
     data: RegistrationIn, db: Session = Depends(get_db), current: Member = Depends(get_current_member)
 ):
-    return registration_service.register_member(db, current, data.event_id)
+    return registration_service.register_member(db, current, data)
+
+
+@router.put("/{registration_id}", response_model=RegistrationOut)
+def change_registration_vehicle(
+    registration_id: int,
+    data: RegistrationVehicleIn,
+    db: Session = Depends(get_db),
+    current: Member = Depends(get_current_member),
+):
+    """Cambia el vehículo con el que asiste (necesario para poder borrar el anterior)."""
+    registration = _get_or_404(db, registration_id)
+    return registration_service.change_vehicle(db, current, registration, data.vehicle_id)
 
 
 @router.delete("/{registration_id}", status_code=204)

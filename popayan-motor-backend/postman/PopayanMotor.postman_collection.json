@@ -35,7 +35,9 @@
                   "const stamp = Date.now();",
                   "pm.collectionVariables.set(\"member_email\", \"laura\" + stamp + \"@mail.com\");",
                   "pm.collectionVariables.set(\"member2_email\", \"pedro\" + stamp + \"@mail.com\");",
-                  "pm.collectionVariables.set(\"plate\", \"T\" + String(stamp).slice(-5));"
+                  "pm.collectionVariables.set(\"plate\", \"T\" + String(stamp).slice(-5));",
+                  "pm.collectionVariables.set(\"plate2\", \"U\" + String(stamp).slice(-5));",
+                  "pm.collectionVariables.set(\"plate3\", \"V\" + String(stamp).slice(-5));"
                 ]
               }
             },
@@ -915,7 +917,50 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Status 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"el primero es principal\", function(){ pm.expect(pm.response.json().is_primary).to.eql(true); });",
                   "pm.collectionVariables.set(\"vehicle_id\", pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar vehículo miembro 2",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{member2_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vehicles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vehicles"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand\": \"BMW\",\n  \"model\": \"M3\",\n  \"year\": 2018,\n  \"type\": \"Deportivo\",\n  \"plate\": \"{{plate2}}\",\n  \"description\": \"Stage 1\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"vehicle2_id\", pm.response.json().id);"
                 ]
               }
             }
@@ -1192,7 +1237,7 @@
       "name": "4. Inscripciones y reglas de negocio",
       "item": [
         {
-          "name": "Inscribirse",
+          "name": "Inscribirse con 3 acompañantes",
           "request": {
             "method": "POST",
             "header": [
@@ -1217,7 +1262,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"event_id\": \"{{event_id}}\"\n}"
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"vehicle_id\": \"{{vehicle_id}}\",\n  \"companions\": 3\n}"
             }
           },
           "event": [
@@ -1227,7 +1272,85 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Status 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"código PMC-XXXXXX\", function(){ pm.expect(pm.response.json().code).to.match(/^PMC-[A-HJ-NP-Z2-9]{6}$/); });",
                   "pm.collectionVariables.set(\"registration_id\", pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Acompañantes no ocupan cupo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{member_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/events/{{event_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "events",
+                "{{event_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"1 inscrito, 4 asistentes\", function(){ const j=pm.response.json(); pm.expect(j.registered_count).to.eql(1); pm.expect(j.attendees_count).to.eql(4); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Vehículo ajeno (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{member2_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/registrations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "registrations"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"vehicle_id\": \"{{vehicle_id}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"code VEHICLE_NOT_FOUND\", function () { pm.expect(pm.response.json().code).to.eql(\"VEHICLE_NOT_FOUND\"); });"
                 ]
               }
             }
@@ -1259,7 +1382,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"event_id\": \"{{event_id}}\"\n}"
+              "raw": "{\n  \"event_id\": \"{{event_id}}\",\n  \"vehicle_id\": \"{{vehicle_id}}\"\n}"
             }
           },
           "event": [
@@ -1301,7 +1424,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"event_id\": 999999\n}"
+              "raw": "{\n  \"event_id\": 999999,\n  \"vehicle_id\": \"{{vehicle_id}}\"\n}"
             }
           },
           "event": [
@@ -1342,7 +1465,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"event_id\": \"{{event_small_id}}\"\n}"
+              "raw": "{\n  \"event_id\": \"{{event_small_id}}\",\n  \"vehicle_id\": \"{{vehicle_id}}\"\n}"
             }
           },
           "event": [
@@ -1384,7 +1507,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"event_id\": \"{{event_small_id}}\"\n}"
+              "raw": "{\n  \"event_id\": \"{{event_small_id}}\",\n  \"vehicle_id\": \"{{vehicle2_id}}\"\n}"
             }
           },
           "event": [
@@ -1395,6 +1518,126 @@
                 "exec": [
                   "pm.test(\"Status 409\", function () { pm.response.to.have.status(409); });",
                   "pm.test(\"code EVENT_FULL\", function () { pm.expect(pm.response.json().code).to.eql(\"EVENT_FULL\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "No se borra vehículo con inscripciones (409)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{member_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vehicles/{{vehicle_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vehicles",
+                "{{vehicle_id}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"code VEHICLE_HAS_REGISTRATIONS\", function () { pm.expect(pm.response.json().code).to.eql(\"VEHICLE_HAS_REGISTRATIONS\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar segundo vehículo como principal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{member_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/vehicles",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "vehicles"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"brand\": \"BMW\",\n  \"model\": \"M2\",\n  \"year\": 2018,\n  \"type\": \"Deportivo\",\n  \"plate\": \"{{plate3}}\",\n  \"description\": \"Stage 1\",\n  \"is_primary\": true\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"vehicle3_id\", pm.response.json().id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cambiar vehículo de la inscripción",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{member_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/registrations/{{registration_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "registrations",
+                "{{registration_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vehicle_id\": \"{{vehicle3_id}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"vehículo cambiado\", function(){ pm.expect(pm.response.json().vehicle.id).to.eql(pm.collectionVariables.get(\"vehicle3_id\")); });"
                 ]
               }
             }

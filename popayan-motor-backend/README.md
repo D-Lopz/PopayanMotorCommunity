@@ -54,14 +54,16 @@ La estructura de la base de datos se encuentra en:
 
 `sql/schema.sql`
 
-Ejecutar el script desde MySQL Workbench para crear la base de datos `popayan_motor` y sus tablas.
+Ejecutar el script desde MySQL Workbench para crear la base de datos `popayan_motor` y sus tablas. **El script borra y recrea la base completa** (`DROP DATABASE IF EXISTS`), así que después hay que volver a crear el administrador con `python -m scripts.create_admin`. La versión 1.0 entregada está en el tag git `v1.0`.
 
 Las entidades principales son:
 
 - **Member:** información de los miembros.
 - **Vehicle:** vehículos asociados a los miembros.
 - **Event:** información de los eventos automotrices.
-- **Registration:** inscripciones de los miembros a los eventos.
+- **Registration:** inscripciones de los miembros a los eventos, con el vehículo con el que asisten, el número de acompañantes y un código único `PMC-XXXXXX`.
+
+Cambios de la v1.1: `event.end_date` (último día si el evento dura varios días), `event.price` (aporte en COP, solo informativo), `event.distance_km`, `vehicle.is_primary`, y `registration.vehicle_id`, `companions` y `code`.
 
 Las relaciones, restricciones y reglas de integridad se encuentran definidas en el esquema SQL.
 
@@ -87,7 +89,7 @@ En un dispositivo físico, el computador y el teléfono deben estar conectados a
 
 ## 6. Endpoints de la API
 
-La API documenta 20 operaciones principales, agrupadas en los siguientes módulos. Los métodos, parámetros y esquemas definitivos deben corresponder a las rutas implementadas y a la documentación generada por FastAPI.
+La API documenta 21 operaciones principales, agrupadas en los siguientes módulos. Los métodos, parámetros y esquemas definitivos deben corresponder a las rutas implementadas y a la documentación generada por FastAPI.
 
 ### 6.1. Autenticación
 
@@ -113,7 +115,9 @@ La API documenta 20 operaciones principales, agrupadas en los siguientes módulo
 | POST | `/api/vehicles` | Registrar un vehículo | Usuario autenticado |
 | GET | `/api/vehicles/{id}` | Consultar un vehículo | Propietario o administrador |
 | PUT | `/api/vehicles/{id}` | Actualizar un vehículo | Propietario |
-| DELETE | `/api/vehicles/{id}` | Eliminar un vehículo | Propietario |
+| DELETE | `/api/vehicles/{id}` | Eliminar un vehículo (409 si tiene inscripciones a eventos sin terminar) | Propietario |
+
+El primer vehículo de cada miembro queda como principal (`is_primary`). Al marcar otro con `"is_primary": true`, el anterior se desmarca. Si se borra el principal, pasa a serlo el más antiguo.
 
 ### 6.4. Eventos
 
@@ -125,6 +129,8 @@ La API documenta 20 operaciones principales, agrupadas en los siguientes módulo
 | PUT | `/api/events/{id}` | Actualizar un evento | Administrador |
 | DELETE | `/api/events/{id}` | Eliminar un evento | Administrador |
 
+Cada evento devuelve, además de sus campos, `registered_count` (cupos ocupados), `attendees_count` (inscritos + acompañantes) y `finished` (`true` desde las 00:01 del día siguiente a `end_date`, o a `date` si no tiene fin; es lo que mueve el evento a la pestaña "Pasados").
+
 ### 6.5. Inscripciones
 
 | Método | Endpoint | Descripción | Acceso |
@@ -132,15 +138,20 @@ La API documenta 20 operaciones principales, agrupadas en los siguientes módulo
 | GET | `/api/registrations?event_id=&member_id=` | Consultar inscripciones | Miembro: propias; administrador: todas |
 | POST | `/api/registrations` | Inscribir al miembro autenticado en un evento | Usuario autenticado |
 | GET | `/api/registrations/{id}` | Consultar una inscripción | Propietario o administrador |
+| PUT | `/api/registrations/{id}` | Cambiar el vehículo de la inscripción (solo antes de que termine el evento) | Propietario |
 | DELETE | `/api/registrations/{id}` | Cancelar una inscripción | Propietario o administrador |
 
-Para crear una inscripción, el cuerpo de la solicitud utiliza el identificador del evento:
+Para crear una inscripción se envía el evento, un vehículo del propio garaje y los acompañantes (0 a 10, opcional):
 
 ```json
 {
-  "event_id": 1
+  "event_id": 1,
+  "vehicle_id": 4,
+  "companions": 2
 }
 ```
+
+La respuesta incluye `code` (`PMC-` + 6 caracteres sin O/0/I/1) y `code_expires_at`, que coincide con el momento en que el evento pasa a "Pasados".
 
 Los identificadores y campos requeridos deben corresponder a los esquemas implementados en la API.
 
@@ -172,12 +183,13 @@ Los errores de validación pueden incluir información adicional sobre los campo
 
 La aplicación contempla las siguientes reglas:
 
-1. **Capacidad de los eventos:** el número de inscripciones no puede superar la capacidad máxima establecida.
+1. **Capacidad de los eventos:** el número de inscripciones no puede superar la capacidad máxima establecida. Cada inscripción ocupa un cupo; los acompañantes no ocupan cupo, solo suman al total de asistentes.
 2. **Inscripciones duplicadas:** un miembro no puede inscribirse más de una vez al mismo evento.
 3. **Eventos pasados:** no se permiten inscripciones cuando la fecha y hora de inicio del evento ya han transcurrido.
 4. **Validación del servidor:** los datos deben validarse antes de crear o actualizar recursos.
 5. **Eliminación de eventos:** no se permite eliminar un evento que tenga inscripciones asociadas.
-6. **Permisos:** las operaciones administrativas requieren el rol correspondiente y las operaciones sobre recursos personales deben respetar la autorización del propietario.
+6. **Vehículo de la inscripción:** debe pertenecer al miembro. Un vehículo con inscripciones a eventos sin terminar no se puede eliminar; primero se cambia el vehículo de esas inscripciones o se cancelan. Las inscripciones de eventos terminados no lo impiden: conservan el historial sin vehículo.
+7. **Permisos:** las operaciones administrativas requieren el rol correspondiente y las operaciones sobre recursos personales deben respetar la autorización del propietario.
 
 Las validaciones deben estar implementadas en el backend y respaldadas por las restricciones correspondientes de la base de datos cuando aplique.
 
@@ -187,7 +199,7 @@ La colección de solicitudes se encuentra en:
 
 `postman/PopayanMotor.postman_collection.json`
 
-Según la documentación inicial del proyecto, la colección contiene 55 peticiones. Esta cantidad debe confirmarse con el archivo actual.
+La colección contiene 61 peticiones y se genera con `python postman/build_collection.py`.
 
 ### Configuración
 
@@ -240,7 +252,7 @@ Para ejecutar las pruebas:
 pytest -q
 ```
 
-La documentación inicial indica que existen 23 pruebas automatizadas con SQLite en memoria. Esta cantidad debe confirmarse en el código y en la salida real de `pytest`.
+La suite tiene 30 pruebas automatizadas que corren por defecto con SQLite en memoria.
 
 Para ejecutar pruebas contra MySQL, si el proyecto tiene configurado el soporte correspondiente:
 

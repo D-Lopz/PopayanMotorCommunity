@@ -47,17 +47,17 @@ def test_filters_and_search(client, member, make_event):
     assert client.get("/api/events?category=Inventada", headers=member).status_code == 422
 
 
-def test_cannot_delete_event_with_registrations(client, admin, member, make_event):
+def test_cannot_delete_event_with_registrations(client, admin, member, make_event, register):
     event = make_event()
-    client.post("/api/registrations", json={"event_id": event["id"]}, headers=member)
+    register(member, event["id"])
     r = client.delete(f"/api/events/{event['id']}", headers=admin)
     assert r.status_code == 409 and r.json()["code"] == "EVENT_HAS_REGISTRATIONS"
 
 
-def test_cannot_reduce_capacity_below_registered(client, admin, member, member2, make_event):
+def test_cannot_reduce_capacity_below_registered(client, admin, member, member2, make_event, register):
     event = make_event(max_capacity=5)
     for h in (member, member2):
-        client.post("/api/registrations", json={"event_id": event["id"]}, headers=h)
+        register(h, event["id"])
     upd = {k: v for k, v in event.items() if k not in ("id", "registered_count")}
     r = client.put(f"/api/events/{event['id']}", json={**upd, "max_capacity": 1}, headers=admin)
     assert r.status_code == 409 and r.json()["code"] == "CAPACITY_BELOW_REGISTERED"

@@ -18,10 +18,14 @@ ev = httpx.post(B + "/events", headers=adm, json={"name": "Concurrencia", "date"
 tokens = []
 for i in range(10):
     httpx.post(B + "/auth/register", json={"name": f"User {i}", "email": f"u{i}{stamp}@mail.com", "password": "Clave12345"})
-    tokens.append(httpx.post(B + "/auth/login", json={"email": f"u{i}{stamp}@mail.com", "password": "Clave12345"}).json()["access_token"])
+    t = httpx.post(B + "/auth/login", json={"email": f"u{i}{stamp}@mail.com", "password": "Clave12345"}).json()["access_token"]
+    v = httpx.post(B + "/vehicles", headers={"Authorization": "Bearer " + t}, json={"brand": "Mazda", "model": "MX-5", "year": 2020,
+                   "type": "Deportivo", "plate": f"C{stamp[-5:]}{i}"}).json()
+    tokens.append((t, v["id"]))
 results = []
-def go(t):
-    results.append(httpx.post(B + "/registrations", headers={"Authorization": "Bearer " + t}, json={"event_id": ev["id"]}).status_code)
+def go(tv):
+    t, vid = tv
+    results.append(httpx.post(B + "/registrations", headers={"Authorization": "Bearer " + t}, json={"event_id": ev["id"], "vehicle_id": vid}).status_code)
 threads = [threading.Thread(target=go, args=(t,)) for t in tokens]
 [t.start() for t in threads]; [t.join() for t in threads]
 final = httpx.get(f"{B}/events/{ev['id']}", headers=adm).json()["registered_count"]

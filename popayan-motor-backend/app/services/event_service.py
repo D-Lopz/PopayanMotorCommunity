@@ -19,24 +19,31 @@ def is_past(event: Event) -> bool:
     return event_start(event) <= now_colombia()
 
 
+def is_finished(event: Event) -> bool:
+    return event.ends_at <= now_colombia()
+
+
 def count_registrations(db: Session, event_id: int) -> int:
     return db.scalar(select(func.count(Registration.id)).where(Registration.event_id == event_id)) or 0
 
 
 def to_out(db: Session, events: list[Event]) -> list[EventOut]:
     """Convierte eventos a esquema de salida agregando registered_count (una sola consulta)."""
-    counts: dict[int, int] = {}
+    counts: dict[int, tuple[int, int]] = {}
     if events:
         rows = db.execute(
-            select(Registration.event_id, func.count(Registration.id))
+            select(Registration.event_id, func.count(Registration.id), func.sum(Registration.companions))
             .where(Registration.event_id.in_([e.id for e in events]))
             .group_by(Registration.event_id)
         ).all()
-        counts = {event_id: total for event_id, total in rows}
+        counts = {event_id: (total, int(companions or 0)) for event_id, total, companions in rows}
     result = []
     for e in events:
         out = EventOut.model_validate(e)
-        out.registered_count = counts.get(e.id, 0)
+        registered, companions = counts.get(e.id, (0, 0))
+        out.registered_count = registered
+        out.attendees_count = registered + companions  # los acompañantes no consumen cupo
+        out.finished = is_finished(e)
         result.append(out)
     return result
 

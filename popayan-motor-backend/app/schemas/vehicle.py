@@ -16,6 +16,7 @@ class VehicleIn(BaseModel):
     type: VehicleType
     plate: str
     description: Optional[str] = Field(default=None, max_length=1000)
+    is_primary: bool = False
 
     @field_validator("brand", "model")
     @classmethod
@@ -52,3 +53,4 @@ class VehicleOut(BaseModel):
     type: VehicleType
     plate: str
     description: Optional[str]
+    is_primary: bool

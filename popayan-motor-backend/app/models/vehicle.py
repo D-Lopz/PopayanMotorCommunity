@@ -1,4 +1,4 @@
-from sqlalchemy import CheckConstraint, Enum, ForeignKey, SmallInteger, String, Text
+from sqlalchemy import Boolean, CheckConstraint, Enum, ForeignKey, SmallInteger, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -20,5 +20,6 @@ class Vehicle(Base):
     )
     plate: Mapped[str] = mapped_column(String(10), nullable=False, unique=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    is_primary: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     member = relationship("Member", back_populates="vehicles")

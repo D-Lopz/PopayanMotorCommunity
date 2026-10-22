@@ -50,10 +50,10 @@ def test_members_permissions(client, admin, member, member2):
     assert client.get("/api/members?search=pedro", headers=admin).json()[0]["name"] == "Pedro"
 
 
-def test_delete_member_cascades_and_self_delete_blocked(client, admin, member, make_event):
+def test_delete_member_cascades_and_self_delete_blocked(client, admin, member, make_event, register):
     event = make_event()
     client.post("/api/vehicles", json=vehicle_body(), headers=member)
-    client.post("/api/registrations", json={"event_id": event["id"]}, headers=member)
+    register(member, event["id"])
     members = client.get("/api/members", headers=admin).json()
     laura = next(m for m in members if m["name"] == "Laura")
     admin_row = next(m for m in members if m["name"] == "Admin")
@@ -62,3 +62,16 @@ def test_delete_member_cascades_and_self_delete_blocked(client, admin, member, m
     assert client.get("/api/vehicles", headers=admin).json() == []
     assert client.get("/api/registrations", headers=admin).json() == []
     assert client.get(f"/api/members/{laura['id']}", headers=admin).status_code == 404
+
+
+def test_primary_vehicle(client, member, make_vehicle):
+    a = make_vehicle(member)
+    assert a["is_primary"]  # el primero queda como principal
+    b = make_vehicle(member)
+    assert not b["is_primary"]
+    c = make_vehicle(member, is_primary=True)
+    primaries = [v["id"] for v in client.get("/api/vehicles", headers=member).json() if v["is_primary"]]
+    assert primaries == [c["id"]]
+    assert client.delete(f"/api/vehicles/{c['id']}", headers=member).status_code == 204
+    primaries = [v["id"] for v in client.get("/api/vehicles", headers=member).json() if v["is_primary"]]
+    assert primaries == [a["id"]]  # el más antiguo pasa a ser el principal

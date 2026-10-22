@@ -8,7 +8,8 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.errors import AppError
 from app.dependencies import get_current_member, is_admin
-from app.models import Member, Vehicle
+from app.services import event_service
+from app.models import Member, Registration, Vehicle
 from app.models.enums import VehicleType
 from app.schemas.vehicle import VehicleIn, VehicleOut
 
@@ -27,6 +28,12 @@ def _plate_taken(db: Session, plate: str, except_id: int | None = None) -> bool:
     if except_id is not None:
         query = query.where(Vehicle.id != except_id)
     return db.scalar(query) is not None
+
+
+def _unset_primary(db: Session, member_id: int) -> None:
+    """Desmarca el principal actual del miembro (solo puede haber uno)."""
+    for other in db.scalars(select(Vehicle).where(Vehicle.member_id == member_id, Vehicle.is_primary)):
+        other.is_primary = False
 
 
 def _save(db: Session) -> None:
@@ -72,7 +79,11 @@ def get_vehicle(vehicle_id: int, db: Session = Depends(get_db), current: Member 
 def create_vehicle(data: VehicleIn, db: Session = Depends(get_db), current: Member = Depends(get_current_member)):
     if _plate_taken(db, data.plate):
         raise AppError(409, "Ya existe un vehículo con esa placa", "PLATE_EXISTS")
+    has_primary = db.scalar(select(Vehicle.id).where(Vehicle.member_id == current.id, Vehicle.is_primary))
+    if data.is_primary:
+        _unset_primary(db, current.id)
     vehicle = Vehicle(member_id=current.id, **data.model_dump())  # el dueño sale del token
+    vehicle.is_primary = data.is_primary or has_primary is None  # el primer vehículo queda como principal
     db.add(vehicle)
     _save(db)
     db.refresh(vehicle)
@@ -91,8 +102,12 @@ def update_vehicle(
         raise AppError(403, "Solo el dueño puede editar este vehículo", "FORBIDDEN")
     if _plate_taken(db, data.plate, except_id=vehicle.id):
         raise AppError(409, "Ya existe un vehículo con esa placa", "PLATE_EXISTS")
-    for field, value in data.model_dump().items():
+    # is_primary=false se ignora: para cambiar el principal se marca otro, así siempre queda uno.
+    for field, value in data.model_dump(exclude={"is_primary"}).items():
         setattr(vehicle, field, value)
+    if data.is_primary and not vehicle.is_primary:
+        _unset_primary(db, vehicle.member_id)
+        vehicle.is_primary = True
     _save(db)
     db.refresh(vehicle)
     return vehicle
@@ -103,6 +118,21 @@ def delete_vehicle(vehicle_id: int, db: Session = Depends(get_db), current: Memb
     vehicle = _get_or_404(db, vehicle_id)
     if vehicle.member_id != current.id:
         raise AppError(403, "Solo el dueño puede eliminar este vehículo", "FORBIDDEN")
+    pending = [
+        r for r in db.scalars(select(Registration).where(Registration.vehicle_id == vehicle.id))
+        if not event_service.is_finished(r.event)
+    ]
+    others = db.scalars(
+        select(Vehicle).where(Vehicle.member_id == current.id, Vehicle.id != vehicle.id).order_by(Vehicle.id)
+    ).all()
+    if pending:
+        hint = "Asígnalas a otro vehículo primero" if others else "Cancela primero esas inscripciones"
+        raise AppError(
+            409, f"Este vehículo tiene {len(pending)} inscripción(es) a eventos sin terminar. {hint}",
+            "VEHICLE_HAS_REGISTRATIONS",
+        )
+    if vehicle.is_primary and others:
+        others[0].is_primary = True  # el más antiguo pasa a ser el principal
     db.delete(vehicle)
     db.commit()
     return Response(status_code=204)

@@ -7,7 +7,7 @@ from app.routers import auth, events, members, registrations, vehicles
 app = FastAPI(
     title="Popayán Motor Community API",
     description="API REST para la app Android de la comunidad automotriz de Popayán.",
-    version="1.0.0",
+    version="1.1.0",
 )
 
 register_error_handlers(app)

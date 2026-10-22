@@ -1,4 +1,5 @@
 """Fixtures: por defecto usa SQLite en memoria; con TEST_DATABASE_URL usa MySQL de pruebas."""
+import itertools
 import os
 from datetime import date, timedelta
 
@@ -99,3 +100,27 @@ def vehicle_body(**overrides):
     body = {"brand": "BMW", "model": "M3", "year": 2018, "type": "Deportivo", "plate": "ABC123", "description": "Stage 1"}
     body.update(overrides)
     return body
+
+
+_plates = itertools.count(100)
+
+
+@pytest.fixture()
+def make_vehicle(client):
+    def _make(headers, **overrides):
+        r = client.post("/api/vehicles", json=vehicle_body(plate=f"AAA{next(_plates)}", **overrides), headers=headers)
+        assert r.status_code == 201, r.text
+        return r.json()
+
+    return _make
+
+
+@pytest.fixture()
+def register(client, make_vehicle):
+    """Inscribe al miembro; si no se da vehicle_id, le crea un vehículo."""
+    def _register(headers, event_id, **extra):
+        if "vehicle_id" not in extra:
+            extra["vehicle_id"] = make_vehicle(headers)["id"]
+        return client.post("/api/registrations", json={"event_id": event_id, **extra}, headers=headers)
+
+    return _register
