@@ -33,8 +33,8 @@
                   "pm.collectionVariables.set(\"event_date\", d.toISOString().slice(0,10));",
                   "pm.collectionVariables.set(\"past_date\", new Date(Date.now() - 3*86400000).toISOString().slice(0,10));",
                   "const stamp = Date.now();",
-                  "pm.collectionVariables.set(\"member_email\", \"laura\" + stamp + \"@mail.com\");",
-                  "pm.collectionVariables.set(\"member2_email\", \"pedro\" + stamp + \"@mail.com\");",
+                  "pm.collectionVariables.set(\"member_email\", \"laura\" + stamp + \"@popayanmotor.com\");",
+                  "pm.collectionVariables.set(\"member2_email\", \"pedro\" + stamp + \"@popayanmotor.com\");",
                   "pm.collectionVariables.set(\"plate\", \"T\" + String(stamp).slice(-5));",
                   "pm.collectionVariables.set(\"plate2\", \"U\" + String(stamp).slice(-5));",
                   "pm.collectionVariables.set(\"plate3\", \"V\" + String(stamp).slice(-5));"
@@ -170,6 +170,45 @@
                 "exec": [
                   "pm.test(\"Status 409\", function () { pm.response.to.have.status(409); });",
                   "pm.test(\"code EMAIL_EXISTS\", function () { pm.expect(pm.response.json().code).to.eql(\"EMAIL_EXISTS\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registro con dominio no permitido (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Laura Gómez\",\n  \"email\": \"laura@gmail.com\",\n  \"password\": \"Clave12345\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status 422\", function () { pm.response.to.have.status(422); });",
+                  "pm.test(\"code VALIDATION_ERROR\", function () { pm.expect(pm.response.json().code).to.eql(\"VALIDATION_ERROR\"); });"
                 ]
               }
             }
@@ -2033,7 +2072,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Laura G.\",\n  \"phone\": \"3009998888\"\n}"
+              "raw": "{\n  \"name\": \"Laura G.\",\n  \"phone\": \"3009998888\",\n  \"city\": \"Popayán, Cauca\"\n}"
             }
           },
           "event": [
@@ -2042,7 +2081,8 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });"
+                  "pm.test(\"Status 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"guarda la ciudad\", function(){ pm.expect(pm.response.json().city).to.eql(\"Popayán, Cauca\"); });"
                 ]
               }
             }
@@ -2372,7 +2412,7 @@
     },
     {
       "key": "admin_password",
-      "value": "Admin12345"
+      "value": ""
     }
   ]
 }

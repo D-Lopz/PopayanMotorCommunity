@@ -1,6 +1,7 @@
--- Popayán Motor Community — esquema MySQL 8 (v1.1)
+-- Popayán Motor Community — esquema MySQL 8 (v1.2)
 -- Ejecutar completo en MySQL Workbench (o: mysql -u root -p < sql/schema.sql)
 -- OJO: borra y recrea la base completa. La v1.0 está en el tag git v1.0.
+-- Para actualizar una base existente SIN perder datos, usar los scripts de sql/migrations/
 
 DROP DATABASE IF EXISTS popayan_motor;
 CREATE DATABASE popayan_motor
@@ -13,6 +14,7 @@ CREATE TABLE member (
   email         VARCHAR(255) NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   phone         VARCHAR(20)  NULL,
+  city          VARCHAR(100) NULL,
   join_date     DATETIME     NOT NULL,
   role          ENUM('MEMBER','ADMINISTRATOR') NOT NULL DEFAULT 'MEMBER',
   CONSTRAINT uq_member_email UNIQUE (email)

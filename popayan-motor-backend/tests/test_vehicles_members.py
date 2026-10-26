@@ -75,3 +75,16 @@ def test_primary_vehicle(client, member, make_vehicle):
     assert client.delete(f"/api/vehicles/{c['id']}", headers=member).status_code == 204
     primaries = [v["id"] for v in client.get("/api/vehicles", headers=member).json() if v["is_primary"]]
     assert primaries == [a["id"]]  # el más antiguo pasa a ser el principal
+
+
+def test_update_profile_city_and_protected_fields(client, member):
+    me = client.post("/api/auth/login", json={"email": "laura@mail.com", "password": "Clave12345"}).json()["member"]
+    assert me["city"] is None  # cuentas existentes: sin ciudad hasta que la completen
+    # Intentar cambiar rol o correo por la petición no tiene efecto: MemberUpdate no tiene esos campos.
+    body = {"name": "Laura", "phone": None, "city": "  Popayán, Cauca ", "role": "ADMINISTRATOR", "email": "x@popayanmotor.com"}
+    r = client.put(f"/api/members/{me['id']}", json=body, headers=member)
+    assert r.status_code == 200
+    assert r.json()["city"] == "Popayán, Cauca"
+    assert r.json()["role"] == "MEMBER" and r.json()["email"] == "laura@mail.com"
+    assert client.put(f"/api/members/{me['id']}", json={"name": "Laura", "city": ""}, headers=member).json()["city"] is None
+    assert client.put(f"/api/members/{me['id']}", json={"name": "Laura", "city": "x" * 101}, headers=member).status_code == 422

@@ -1,6 +1,7 @@
 """Prueba manual de la Regla 1 con peticiones simultáneas (requiere el servidor corriendo y un admin).
 Uso:  python tests/concurrency_check.py  [admin_email] [admin_password]
 Crea un evento de 3 cupos, inscribe 10 usuarios a la vez y debe terminar con 3 inscritos exactos."""
+import getpass
 import sys
 import threading
 import time
@@ -10,7 +11,7 @@ import httpx
 
 B = "http://localhost:8000/api"
 email = sys.argv[1] if len(sys.argv) > 1 else "admin@popayanmotor.com"
-password = sys.argv[2] if len(sys.argv) > 2 else "Admin12345"
+password = sys.argv[2] if len(sys.argv) > 2 else getpass.getpass("Contraseña del admin: ")
 stamp = str(int(time.time()))
 adm = {"Authorization": "Bearer " + httpx.post(B + "/auth/login", json={"email": email, "password": password}).json()["access_token"]}
 ev = httpx.post(B + "/events", headers=adm, json={"name": "Concurrencia", "date": str(date.today() + timedelta(days=9)),

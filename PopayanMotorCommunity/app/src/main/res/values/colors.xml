@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#0B0C0E</color>
+    <color name="surface">#16181C</color>
+    <color name="outline">#2A2D33</color>
+    <color name="accent">#E1292F</color>
+    <color name="text_primary">#F6F6F4</color>
+    <color name="text_secondary">#8D9199</color>
+    <color name="success">#34C77B</color>  <!-- insignia de administrador -->
+</resources>

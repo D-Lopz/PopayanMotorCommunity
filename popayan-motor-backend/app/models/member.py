@@ -16,6 +16,7 @@ class Member(Base):
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    city: Mapped[str | None] = mapped_column(String(100), nullable=True)  # migración 001
     join_date: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=now_colombia)
     role: Mapped[Role] = mapped_column(
         Enum(Role, values_callable=lambda e: [m.value for m in e], name="role"),

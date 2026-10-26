@@ -35,8 +35,8 @@ setup = [
     'pm.collectionVariables.set("event_date", d.toISOString().slice(0,10));',
     'pm.collectionVariables.set("past_date", new Date(Date.now() - 3*86400000).toISOString().slice(0,10));',
     'const stamp = Date.now();',
-    'pm.collectionVariables.set("member_email", "laura" + stamp + "@mail.com");',
-    'pm.collectionVariables.set("member2_email", "pedro" + stamp + "@mail.com");',
+    'pm.collectionVariables.set("member_email", "laura" + stamp + "@popayanmotor.com");',
+    'pm.collectionVariables.set("member2_email", "pedro" + stamp + "@popayanmotor.com");',
     'pm.collectionVariables.set("plate", "T" + String(stamp).slice(-5));',
     'pm.collectionVariables.set("plate2", "U" + String(stamp).slice(-5));',
     'pm.collectionVariables.set("plate3", "V" + String(stamp).slice(-5));',
@@ -55,6 +55,7 @@ folders = [
         tests=[status(201), 'pm.test("rol MEMBER y sin hash", function(){ const j=pm.response.json(); pm.expect(j.role).to.eql("MEMBER"); pm.expect(j).to.not.have.property("password_hash"); });', save("member_id", "pm.response.json().id")]),
     req("Registrar miembro 2", "POST", "/api/auth/register", body={"name": "Pedro Ruiz", "email": "{{member2_email}}", "password": "Clave12345"}, tests=[status(201), save("member2_id", "pm.response.json().id")]),
     req("Registro con correo repetido (409)", "POST", "/api/auth/register", body={"name": "Laura Gómez", "email": "{{member_email}}", "password": "Clave12345"}, tests=[status(409), code_is("EMAIL_EXISTS")]),
+    req("Registro con dominio no permitido (422)", "POST", "/api/auth/register", body={"name": "Laura Gómez", "email": "laura@gmail.com", "password": "Clave12345"}, tests=[status(422), code_is("VALIDATION_ERROR")]),
     req("Registro con datos inválidos (422)", "POST", "/api/auth/register", body={"name": "L", "email": "mal", "password": "1"}, tests=[status(422), code_is("VALIDATION_ERROR")]),
     req("Login miembro 1", "POST", "/api/auth/login", body={"email": "{{member_email}}", "password": "Clave12345"}, tests=[status(200), save("member_token", "pm.response.json().access_token")]),
     req("Login miembro 2", "POST", "/api/auth/login", body={"email": "{{member2_email}}", "password": "Clave12345"}, tests=[status(200), save("member2_token", "pm.response.json().access_token")]),
@@ -111,7 +112,7 @@ folders = [
     req("Buscar miembros", "GET", "/api/members", "admin_token", query={"search": "laura"}, tests=[status(200)]),
     req("Ver mi perfil", "GET", "/api/members/{{member_id}}", "member_token", tests=[status(200)]),
     req("Ver perfil ajeno (403)", "GET", "/api/members/{{member2_id}}", "member_token", tests=[status(403)]),
-    req("Editar mi perfil", "PUT", "/api/members/{{member_id}}", "member_token", {"name": "Laura G.", "phone": "3009998888"}, tests=[status(200)]),
+    req("Editar mi perfil", "PUT", "/api/members/{{member_id}}", "member_token", {"name": "Laura G.", "phone": "3009998888", "city": "Popayán, Cauca"}, tests=[status(200), 'pm.test("guarda la ciudad", function(){ pm.expect(pm.response.json().city).to.eql("Popayán, Cauca"); });']),
  ]),
  ("6. Limpieza (DELETE)", [
     req("Cancelar inscripción", "DELETE", "/api/registrations/{{registration_id}}", "member_token", tests=[status(204)]),
@@ -140,7 +141,7 @@ collection = {
     "variable": [
         {"key": "base_url", "value": "http://localhost:8000"},
         {"key": "admin_email", "value": "admin@popayanmotor.com"},
-        {"key": "admin_password", "value": "Admin12345"},
+        {"key": "admin_password", "value": ""},  # se escribe en Postman (pestaña Variables), nunca en el repo
     ],
 }
 with open("postman/PopayanMotor.postman_collection.json", "w", encoding="utf-8") as fh:

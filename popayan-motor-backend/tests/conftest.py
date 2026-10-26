@@ -4,6 +4,11 @@ import os
 from datetime import date, timedelta
 
 import pytest
+
+# Las pruebas usan su propia BD (get_db se reemplaza); esto solo evita exigir un .env para correrlas.
+os.environ.setdefault("DATABASE_URL", "sqlite://")
+os.environ.setdefault("SECRET_KEY", "clave-solo-para-pruebas")
+
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker

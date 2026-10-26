@@ -1,0 +1,131 @@
+<resources>
+    <string name="app_name">Popayán Motor</string>
+
+    <string name="login_title">Popayán Motor Community</string>
+    <string name="login_subtitle">Inicia sesión para ver los eventos</string>
+    <string name="email">Correo</string>
+    <string name="password">Contraseña</string>
+    <string name="login_button">Iniciar sesión</string>
+    <string name="error_email">Escribe un correo válido</string>
+    <string name="error_password">Escribe tu contraseña</string>
+    <string name="go_register">¿No tienes cuenta? Regístrate</string>
+
+    <string name="register_title">Crear cuenta</string>
+    <string name="register_subtitle">Únete a la comunidad con tu correo de Popayán Motor</string>
+    <string name="full_name">Nombre completo</string>
+    <string name="email_user">Usuario del correo</string>
+    <string name="phone_optional">Celular (opcional)</string>
+    <string name="password_helper">Mínimo 8 caracteres</string>
+    <string name="password_confirm">Confirmar contraseña</string>
+    <string name="register_button">Crear cuenta</string>
+    <string name="go_login">¿Ya tienes cuenta? Inicia sesión</string>
+    <string name="error_name">Escribe tu nombre (mínimo 2 letras)</string>
+    <string name="error_email_user">Escribe solo la parte antes de la @ (letras, números, punto, guion)</string>
+    <string name="error_phone">El celular debe tener entre 7 y 15 dígitos</string>
+    <string name="error_password_short">La contraseña debe tener entre 8 y 64 caracteres</string>
+    <string name="error_password_match">Las contraseñas no coinciden</string>
+
+    <string name="tab_home">Inicio</string>
+    <string name="tab_events">Eventos</string>
+    <string name="upcoming_events">Próximos eventos</string>
+    <string name="upcoming_empty">No hay próximos eventos por ahora</string>
+    <string name="tab_garage">Garaje</string>
+    <string name="tab_profile">Perfil</string>
+
+    <string name="garage_title">Mi garaje</string>
+    <string name="garage_collection">Tu colección</string>
+    <plurals name="vehicle_count">
+        <item quantity="one">%d vehículo</item>
+        <item quantity="other">%d vehículos</item>
+    </plurals>
+    <string name="garage_empty">Aún no tienes vehículos.\nAgrega el primero para inscribirte a eventos.</string>
+    <string name="add_vehicle">Agregar vehículo</string>
+    <string name="edit_vehicle">Editar vehículo</string>
+    <string name="primary">Principal</string>
+    <string name="edit">Editar</string>
+    <string name="delete">Eliminar</string>
+    <string name="delete_vehicle_confirm">¿Eliminar %1$s? Esta acción no se puede deshacer.</string>
+    <string name="vehicle_deleted">Vehículo eliminado</string>
+    <string name="vehicle_saved">Vehículo guardado</string>
+    <string name="back">Volver</string>
+
+    <string name="brand">Marca</string>
+    <string name="brand_hint">Ej. Mazda</string>
+    <string name="model">Modelo</string>
+    <string name="model_hint">Ej. MX-5</string>
+    <string name="year">Año</string>
+    <string name="plate">Placa</string>
+    <string name="vehicle_type">Tipo de vehículo</string>
+    <string name="description_optional">Descripción (opcional)</string>
+    <string name="description_hint">Ej. Rojo soul</string>
+    <string name="primary_vehicle">Vehículo principal</string>
+    <string name="primary_vehicle_help">Se usará por defecto en eventos</string>
+    <string name="primary_locked">Ya es el principal. Para cambiarlo, marca otro vehículo como principal.</string>
+    <string name="save_vehicle">Guardar vehículo</string>
+    <string name="error_required">Este campo es obligatorio</string>
+    <string name="error_year">El año debe estar entre 1900 y %1$d</string>
+    <string name="error_plate">Entre 5 y 7 letras o números (ej: ABC123)</string>
+    <string name="error_type">Selecciona el tipo</string>
+
+    <string name="events_title">Eventos</string>
+    <string name="search_hint">Buscar por nombre o lugar</string>
+    <string name="all">Todos</string>
+    <string name="events_empty">No hay eventos con esos filtros</string>
+    <string name="retry">Reintentar</string>
+    <string name="free">Gratis</string>
+    <string name="finished">Terminado</string>
+
+    <string name="logout">Cerrar sesión</string>
+    <string name="logout_confirm">¿Seguro que quieres cerrar sesión?</string>
+    <string name="cancel">Cancelar</string>
+
+    <string name="member_since">Miembro desde %1$s</string>
+    <string name="admin_badge">Administrador</string>
+    <string name="stat_events">Eventos</string>
+    <string name="stat_vehicles">Vehículos</string>
+    <string name="stat_km">Km en rutas</string>
+    <string name="stat_km_note">Km estimados con tus inscripciones a rutas ya terminadas. No confirman asistencia ni la distancia que recorriste.</string>
+    <string name="row_garage">Mi garaje</string>
+    <string name="row_garage_sub">Administra tus vehículos</string>
+    <string name="row_admin">Administración</string>
+    <string name="row_admin_sub">Gestión de eventos de la comunidad</string>
+    <string name="app_version">Popayán Motor Community · v%1$s</string>
+
+    <string name="edit_profile">Editar perfil</string>
+    <string name="phone">Celular</string>
+    <string name="city">Ciudad</string>
+    <string name="city_hint">Ej. Popayán, Cauca</string>
+    <string name="save_changes">Guardar cambios</string>
+    <string name="profile_saved">Perfil actualizado</string>
+
+    <string name="create_event">Crear evento</string>
+    <string name="edit_event">Editar evento</string>
+    <string name="event_name">Nombre del evento</string>
+    <string name="event_name_hint">Ej. Meet nocturno Parque Caldas</string>
+    <string name="category">Categoría</string>
+    <string name="date">Fecha</string>
+    <string name="time">Hora</string>
+    <string name="end_date_optional">Fecha de fin (opcional)</string>
+    <string name="end_date_help">Solo si el evento dura varios días</string>
+    <string name="clear_end_date">Quitar fecha de fin</string>
+    <string name="location">Lugar</string>
+    <string name="location_hint">Ej. Parque Caldas, Popayán</string>
+    <string name="capacity">Cupos</string>
+    <string name="price">Aporte (COP)</string>
+    <string name="price_help">0 = gratis</string>
+    <string name="distance_optional">Distancia en km (opcional)</string>
+    <string name="distance_help">Para rutas: suma a los «Km en rutas» de los inscritos</string>
+    <string name="save_event">Guardar evento</string>
+    <string name="delete_event">Eliminar evento</string>
+    <string name="delete_event_confirm">¿Eliminar «%1$s»? Esta acción no se puede deshacer.</string>
+    <string name="event_saved">Evento guardado</string>
+    <string name="event_deleted">Evento eliminado</string>
+    <string name="error_event_name">Entre 3 y 150 caracteres</string>
+    <string name="error_location">Entre 2 y 200 caracteres</string>
+    <string name="error_category">Selecciona la categoría</string>
+    <string name="error_future">La fecha y hora deben ser futuras</string>
+    <string name="error_end_date">No puede ser anterior a la fecha de inicio</string>
+    <string name="error_capacity">Entre 1 y 100.000 cupos</string>
+    <string name="error_price">Entre 0 y 100.000.000</string>
+    <string name="error_distance">Mayor que 0 y hasta 10.000 km</string>
+</resources>

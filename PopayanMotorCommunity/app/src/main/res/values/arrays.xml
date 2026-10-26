@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Deben coincidir EXACTO con el ENUM EventCategory del backend (con tildes). -->
+    <string-array name="event_categories">
+        <item>Meet</item>
+        <item>Exhibición</item>
+        <item>Ruta</item>
+        <item>Competencia</item>
+        <item>Evento de sonido</item>
+        <item>Reunión</item>
+        <item>Otro</item>
+    </string-array>
+
+    <!-- Deben coincidir EXACTO con el ENUM VehicleType del backend (app/models/enums.py). -->
+    <string-array name="vehicle_types">
+        <item>Modificado</item>
+        <item>Deportivo</item>
+        <item>Clásico</item>
+        <item>Exclusivo</item>
+        <item>Sonido</item>
+        <item>Off-road</item>
+        <item>Tuning</item>
+        <item>Otro</item>
+    </string-array>
+</resources>

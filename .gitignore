@@ -1,0 +1,9 @@
+# Secretos y configuración local: nunca al repo (aplica a backend y app)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.jks
+*.keystore
+local.properties

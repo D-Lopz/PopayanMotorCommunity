@@ -55,6 +55,7 @@ def update_member(
     member = _get_or_404(db, member_id)
     member.name = data.name
     member.phone = data.phone
+    member.city = data.city
     db.commit()
     db.refresh(member)
     return member

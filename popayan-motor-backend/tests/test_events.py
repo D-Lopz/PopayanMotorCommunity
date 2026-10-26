@@ -62,3 +62,13 @@ def test_cannot_reduce_capacity_below_registered(client, admin, member, member2,
     r = client.put(f"/api/events/{event['id']}", json={**upd, "max_capacity": 1}, headers=admin)
     assert r.status_code == 409 and r.json()["code"] == "CAPACITY_BELOW_REGISTERED"
     assert client.put(f"/api/events/{event['id']}", json={**upd, "max_capacity": 2}, headers=admin).status_code == 200
+
+
+def test_member_cannot_edit_or_delete_event(client, member, make_event):
+    event = make_event()
+    body = {"name": "Hackeado", "date": event["date"], "time": event["time"], "location": "Lugar",
+            "max_capacity": 10, "category": "Meet"}
+    for r in (client.put(f"/api/events/{event['id']}", json=body, headers=member),
+              client.delete(f"/api/events/{event['id']}", headers=member)):
+        assert r.status_code == 403 and r.json()["code"] == "FORBIDDEN"
+    assert client.get(f"/api/events/{event['id']}", headers=member).json()["name"] == event["name"]  # sin cambios

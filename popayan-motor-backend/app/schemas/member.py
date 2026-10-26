@@ -7,6 +7,8 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 from app.models.enums import Role
 
 PHONE_RE = re.compile(r"^\+?\d{7,15}$")
+# Solo se exige al registrarse: el login no lo revisa, así las cuentas antiguas siguen entrando.
+EMAIL_DOMAIN = "@popayanmotor.com"
 
 
 def _clean_phone(value: Optional[str]) -> Optional[str]:
@@ -32,6 +34,14 @@ class RegisterIn(BaseModel):
             raise ValueError("El nombre es muy corto")
         return v
 
+    @field_validator("email")
+    @classmethod
+    def check_domain(cls, v: str) -> str:
+        v = v.lower()
+        if not v.endswith(EMAIL_DOMAIN):
+            raise ValueError(f"El correo debe terminar en {EMAIL_DOMAIN}")
+        return v
+
     @field_validator("phone")
     @classmethod
     def check_phone(cls, v):
@@ -44,10 +54,11 @@ class LoginIn(BaseModel):
 
 
 class MemberUpdate(BaseModel):
-    """Un miembro solo puede editar nombre y teléfono (decisión D15)."""
+    """Un miembro solo puede editar nombre, teléfono y ciudad (decisión D15). Correo y rol, nunca."""
 
     name: str = Field(min_length=2, max_length=100)
     phone: Optional[str] = None
+    city: Optional[str] = Field(default=None, max_length=100)
 
     @field_validator("name")
     @classmethod
@@ -62,6 +73,11 @@ class MemberUpdate(BaseModel):
     def check_phone(cls, v):
         return _clean_phone(v)
 
+    @field_validator("city")
+    @classmethod
+    def clean_city(cls, v: Optional[str]) -> Optional[str]:
+        return (v or "").strip() or None  # vacío = sin ciudad
+
 
 class MemberOut(BaseModel):
     """Nunca incluye password_hash."""
@@ -71,6 +87,7 @@ class MemberOut(BaseModel):
     name: str
     email: str
     phone: Optional[str]
+    city: Optional[str]
     join_date: datetime
     role: Role
 

@@ -1,4 +1,4 @@
-from datetime import date, time
+from datetime import date as Date, time
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -9,8 +9,8 @@ from app.models.enums import EventCategory
 class EventIn(BaseModel):
     name: str = Field(min_length=3, max_length=150)
     description: Optional[str] = Field(default=None, max_length=2000)
-    date: date
-    end_date: Optional[date] = Field(default=None, description="Último día si dura varios días")
+    date: Date
+    end_date: Optional[Date] = Field(default=None, description="Último día si dura varios días")
     time: time
     location: str = Field(min_length=2, max_length=200)
     max_capacity: int = Field(gt=0, le=100000)
@@ -38,8 +38,8 @@ class EventOut(BaseModel):
     id: int
     name: str
     description: Optional[str]
-    date: date
-    end_date: Optional[date]
+    date: Date
+    end_date: Optional[Date]
     time: time
     location: str
     max_capacity: int
@@ -55,8 +55,8 @@ class EventSummary(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
     name: str
-    date: date
-    end_date: Optional[date]
+    date: Date
+    end_date: Optional[Date]
     time: time
     location: str
     distance_km: Optional[float]
