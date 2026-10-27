@@ -51,6 +51,14 @@ interface ApiService {
     @GET("registrations")
     suspend fun getRegistrations(@Query("member_id") memberId: Int): List<Registration>
 
+    // 409 si ya está inscrito, el evento empezó o no hay cupos (el mensaje viene en "detail")
+    @POST("registrations")
+    suspend fun createRegistration(@Body body: RegistrationRequest): Registration
+
+    // 409 si el evento ya empezó
+    @DELETE("registrations/{id}")
+    suspend fun deleteRegistration(@Path("id") id: Int): Response<Unit>
+
     // ── Garaje: el backend solo devuelve y deja tocar los vehículos del dueño del token ──
     // member_id por el admin: sin filtro el backend le devuelve los vehículos de TODOS.
     @GET("vehicles")

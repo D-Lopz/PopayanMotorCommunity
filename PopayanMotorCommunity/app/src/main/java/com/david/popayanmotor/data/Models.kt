@@ -40,15 +40,34 @@ data class MemberUpdateRequest(
     val city: String?
 )
 
-// ── Inscripciones (solo lo que usa el perfil para las estadísticas) ──
+// ── Inscripciones ──────────────────────────────────────────────
 data class Registration(
     val id: Int,
+    val code: String,                         // "PMC-AB12CD"
     @SerializedName("code_expires_at") val codeExpiresAt: String,  // fin del evento: después de esto ya terminó
-    val event: RegistrationEvent
+    val event: RegistrationEvent,
+    val vehicle: RegistrationVehicle?         // null si el vehículo se eliminó después de un evento terminado
 )
 
 data class RegistrationEvent(
+    val name: String,
+    val date: String,                         // "2026-11-07"
+    @SerializedName("end_date") val endDate: String?,
+    val time: String,                         // "10:00:00"
+    val location: String,
     @SerializedName("distance_km") val distanceKm: Double?
+)
+
+data class RegistrationVehicle(
+    val brand: String,
+    val model: String,
+    val plate: String
+)
+
+// Sin member_id: el backend inscribe al dueño del token. Acompañantes: el backend usa 0 por defecto.
+data class RegistrationRequest(
+    @SerializedName("event_id") val eventId: Int,
+    @SerializedName("vehicle_id") val vehicleId: Int
 )
 
 // ── Eventos ────────────────────────────────────────────────────

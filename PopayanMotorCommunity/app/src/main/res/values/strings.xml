@@ -87,9 +87,25 @@
     <string name="stat_km_note">Km estimados con tus inscripciones a rutas ya terminadas. No confirman asistencia ni la distancia que recorriste.</string>
     <string name="row_garage">Mi garaje</string>
     <string name="row_garage_sub">Administra tus vehículos</string>
+    <string name="row_registrations">Mis inscripciones</string>
+    <string name="row_registrations_sub">Tus eventos y códigos de inscripción</string>
     <string name="row_admin">Administración</string>
     <string name="row_admin_sub">Gestión de eventos de la comunidad</string>
     <string name="app_version">Popayán Motor Community · v%1$s</string>
+
+    <string name="my_registrations">Mis inscripciones</string>
+    <string name="registrations_empty">Aún no te has inscrito a ningún evento.\nToca un evento próximo para inscribirte.</string>
+    <string name="upcoming">Próximo</string>
+    <string name="past">Pasado</string>
+    <string name="cancel_registration">Cancelar inscripción</string>
+    <string name="cancel_registration_confirm">¿Cancelar tu inscripción a «%1$s»? Liberarás tu cupo.</string>
+    <string name="registration_cancelled">Inscripción cancelada</string>
+    <string name="register_event">Inscribirme</string>
+    <string name="register_event_title">Inscribirme a «%1$s»</string>
+    <string name="registered_ok">¡Inscrito! Tu código es %1$s</string>
+    <string name="event_started">Este evento ya empezó, no admite inscripciones</string>
+    <string name="no_vehicles_to_register">Necesitas un vehículo en tu garaje para inscribirte.</string>
+    <string name="go_garage">Ir al garaje</string>
 
     <string name="edit_profile">Editar perfil</string>
     <string name="phone">Celular</string>

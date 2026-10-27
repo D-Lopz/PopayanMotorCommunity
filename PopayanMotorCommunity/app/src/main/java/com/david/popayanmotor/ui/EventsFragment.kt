@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -14,10 +15,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.david.popayanmotor.R
 import com.david.popayanmotor.data.ApiError
 import com.david.popayanmotor.data.Event
+import com.david.popayanmotor.data.RegistrationRequest
 import com.david.popayanmotor.data.RetrofitClient
 import com.david.popayanmotor.data.SessionManager
 import com.david.popayanmotor.databinding.FragmentEventsBinding
 import com.google.android.material.chip.Chip
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
@@ -40,8 +43,8 @@ class EventsFragment : Fragment() {
 
     private val isAdmin get() = SessionManager.isAdmin(requireContext())
 
-    // Solo el admin puede tocar una tarjeta para editarla; el backend igual rechaza (403) a cualquier otro.
-    private val adapter by lazy { EventAdapter(if (isAdmin) ::openForm else null) }
+    // El admin toca una tarjeta para editarla (el backend rechaza con 403 a cualquier otro); el miembro, para inscribirse.
+    private val adapter by lazy { EventAdapter(if (isAdmin) ::openForm else ::askVehicle) }
     private var category: String? = null  // null = "Todos"
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -90,6 +93,59 @@ class EventsFragment : Fragment() {
         val intent = Intent(requireContext(), EventFormActivity::class.java)
         event?.let { intent.putExtra(EventFormActivity.EXTRA_ID, it.id) }
         startActivity(intent)
+    }
+
+    /** Inscribirse: elige uno de sus vehículos (el principal preseleccionado) y hace POST /api/registrations. */
+    private fun askVehicle(event: Event) {
+        if (Format.hasStarted(event.date, event.time, Format.nowColombia())) {
+            Toast.makeText(requireContext(), R.string.event_started, Toast.LENGTH_SHORT).show()
+            return
+        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val vehicles = RetrofitClient.api.getVehicles(SessionManager.id(requireContext())!!).sortedByDescending { it.isPrimary }
+                if (vehicles.isEmpty()) {
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setMessage(R.string.no_vehicles_to_register)
+                        .setNegativeButton(R.string.cancel, null)
+                        .setPositiveButton(R.string.go_garage) { _, _ -> (requireActivity() as MainActivity).selectTab(R.id.nav_garage) }
+                        .show()
+                    return@launch
+                }
+                var chosen = 0
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(getString(R.string.register_event_title, event.name))
+                    .setSingleChoiceItems(vehicles.map { "${it.brand} ${it.model} · ${it.plate}" }.toTypedArray(), 0) { _, i -> chosen = i }
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.register_event) { _, _ -> register(event, vehicles[chosen].id) }
+                    .show()
+            } catch (e: Exception) {
+                handleActionError(e)
+            }
+        }
+    }
+
+    private fun register(event: Event, vehicleId: Int) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val registration = RetrofitClient.api.createRegistration(RegistrationRequest(event.id, vehicleId))
+                MaterialAlertDialogBuilder(requireContext())
+                    .setMessage(getString(R.string.registered_ok, registration.code))
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show()
+                loadEvents()  // actualiza los cupos de la tarjeta
+            } catch (e: Exception) {
+                handleActionError(e)  // ej. 409: ya inscrito, sin cupos o el evento empezó
+            }
+        }
+    }
+
+    private fun handleActionError(e: Exception) {
+        if (ApiError.isUnauthorized(e)) {
+            (requireActivity() as MainActivity).logout()
+            return
+        }
+        MaterialAlertDialogBuilder(requireContext()).setMessage(ApiError.message(e)).setPositiveButton(android.R.string.ok, null).show()
     }
 
     private fun setupCategoryChips() {

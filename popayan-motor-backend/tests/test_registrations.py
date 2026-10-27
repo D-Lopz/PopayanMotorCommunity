@@ -147,3 +147,11 @@ def test_finished_registration_does_not_block_vehicle_delete(client, member, db_
     assert client.delete(f"/api/vehicles/{vehicle['id']}", headers=member).status_code == 204
     r = client.get(f"/api/registrations/{reg.id}", headers=member).json()
     assert r["vehicle_id"] is None and r["vehicle"] is None
+
+
+def test_cannot_cancel_started_event(client, admin, member, db_session, make_vehicle):
+    old = _event_in_db(db_session, days_ago=3)
+    reg = _register_in_db(db_session, client, member, old, make_vehicle(member)["id"])
+    r = client.delete(f"/api/registrations/{reg.id}", headers=member)
+    assert r.status_code == 409 and r.json()["code"] == "EVENT_STARTED"
+    assert client.delete(f"/api/registrations/{reg.id}", headers=admin).status_code == 204

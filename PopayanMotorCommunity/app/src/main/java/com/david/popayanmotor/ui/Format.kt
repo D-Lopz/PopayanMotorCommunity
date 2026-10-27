@@ -58,6 +58,15 @@ object Format {
     fun kmInRoutes(registrations: List<Registration>, now: String): Double =
         registrations.filter { it.codeExpiresAt <= now }.sumOf { it.event.distanceKm ?: 0.0 }
 
+    /** true si la hora de inicio ya pasó, igual que is_past del backend (ahí deja de admitir inscribirse o cancelar). */
+    fun hasStarted(date: String, time: String, now: String) = "${date}T$time" <= now
+
+    /** Primero las próximas (la más cercana arriba), después las pasadas (la más reciente arriba). */
+    fun sortRegistrations(registrations: List<Registration>, now: String): List<Registration> {
+        val (past, upcoming) = registrations.partition { hasStarted(it.event.date, it.event.time, now) }
+        return upcoming.sortedBy { it.event.date + it.event.time } + past.sortedByDescending { it.event.date + it.event.time }
+    }
+
     /** Hora actual de Colombia como "yyyy-MM-ddTHH:mm:ss", el mismo formato de fechas del backend. */
     fun nowColombia(): String =
         SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)

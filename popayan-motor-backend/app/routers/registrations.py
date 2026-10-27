@@ -9,7 +9,7 @@ from app.core.errors import AppError
 from app.dependencies import get_current_member, is_admin
 from app.models import Member, Registration
 from app.schemas.registration import RegistrationIn, RegistrationOut, RegistrationVehicleIn
-from app.services import registration_service
+from app.services import event_service, registration_service
 
 router = APIRouter(prefix="/registrations", tags=["Registrations"])
 
@@ -83,6 +83,9 @@ def delete_registration(
     registration = _get_or_404(db, registration_id)
     if not is_admin(current) and registration.member_id != current.id:
         raise AppError(403, "Esta inscripción no es tuya", "FORBIDDEN")
+    # Cancelar un evento ya empezado borraría el historial (y los "Km en rutas"); el admin sí puede.
+    if not is_admin(current) and event_service.is_past(registration.event):
+        raise AppError(409, "El evento ya empezó, no se puede cancelar la inscripción", "EVENT_STARTED")
     db.delete(registration)
     db.commit()
     return Response(status_code=204)

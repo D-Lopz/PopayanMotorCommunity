@@ -39,6 +39,8 @@
             android:name=".ui.EditProfileActivity"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity android:name=".ui.RegistrationsActivity" />
+
         <activity
             android:name=".ui.VehicleFormActivity"
             android:windowSoftInputMode="adjustResize" />

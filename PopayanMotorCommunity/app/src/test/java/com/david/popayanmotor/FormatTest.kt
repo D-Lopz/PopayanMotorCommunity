@@ -5,7 +5,9 @@ import com.david.popayanmotor.data.Registration
 import com.david.popayanmotor.data.RegistrationEvent
 import com.david.popayanmotor.ui.Format
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class FormatTest {
@@ -53,7 +55,7 @@ class FormatTest {
 
     @Test
     fun kmSoloDeRutasTerminadas() {
-        fun reg(expires: String, km: Double?) = Registration(1, expires, RegistrationEvent(km))
+        fun reg(expires: String, km: Double?) = Registration(1, "PMC-X", expires, event("2026-10-01", "10:00:00", km), null)
         val now = "2026-10-26T12:00:00"
         val regs = listOf(
             reg("2026-10-20T00:01:00", 120.0),    // terminado → cuenta
@@ -63,6 +65,21 @@ class FormatTest {
         )
         assertEquals(150.5, Format.kmInRoutes(regs, now), 0.001)
         assertEquals(0.0, Format.kmInRoutes(emptyList(), now), 0.001)
+    }
+
+    private fun event(date: String, time: String, km: Double? = null) =
+        RegistrationEvent("Evento", date, null, time, "Popayán", km)
+
+    @Test
+    fun inscripcionesProximasPrimero() {
+        val now = "2026-10-26T12:00:00"
+        assertTrue(Format.hasStarted("2026-10-26", "12:00:00", now))   // empieza justo ahora → ya empezó
+        assertFalse(Format.hasStarted("2026-10-26", "12:00:01", now))
+        fun reg(id: Int, date: String) = Registration(id, "PMC-X", "", event(date, "10:00:00"), null)
+        val sorted = Format.sortRegistrations(
+            listOf(reg(1, "2026-10-01"), reg(2, "2026-12-01"), reg(3, "2026-10-20"), reg(4, "2026-11-07")), now
+        )
+        assertEquals(listOf(4, 2, 3, 1), sorted.map { it.id })
     }
 
     @Test

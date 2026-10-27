@@ -35,6 +35,7 @@ class ProfileFragment : Fragment() {
         val ctx = requireContext()
         val main = requireActivity() as MainActivity
         binding.btnEdit.setOnClickListener { startActivity(Intent(ctx, EditProfileActivity::class.java)) }
+        binding.rowRegistrations.setOnClickListener { startActivity(Intent(ctx, RegistrationsActivity::class.java)) }
         binding.rowGarage.setOnClickListener { main.selectTab(R.id.nav_garage) }
         binding.rowAdmin.setOnClickListener { main.selectTab(R.id.nav_events) }
         binding.btnRetry.setOnClickListener { load() }
