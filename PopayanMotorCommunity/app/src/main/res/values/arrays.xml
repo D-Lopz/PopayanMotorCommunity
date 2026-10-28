@@ -31,5 +31,6 @@
         <item>@drawable/login_hero_1</item>  <!-- GT-R naranja, meet en la calle -->
         <item>@drawable/login_hero_2</item>  <!-- Huracán azul, meet en la calle -->
         <item>@drawable/login_hero_3</item>  <!-- Golf R azul, meet en bodega -->
+        <item>@drawable/login_hero_4</item>  <!-- Golf R gris, parqueadero cubierto (JPG) -->
     </array>
 </resources>
