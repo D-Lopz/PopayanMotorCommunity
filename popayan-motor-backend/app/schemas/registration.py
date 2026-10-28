@@ -25,6 +25,22 @@ class VehicleSummary(BaseModel):
     plate: str
 
 
+class CheckVehicle(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    brand: str
+    model: str
+    plate: str
+
+
+class RegistrationCheckOut(BaseModel):
+    """Lo mínimo para validar en la entrada: sin correo, teléfono ni ids internos."""
+    code: str
+    event_name: str
+    member_name: str
+    companions: int
+    vehicle: Optional[CheckVehicle]
+
+
 class RegistrationOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int

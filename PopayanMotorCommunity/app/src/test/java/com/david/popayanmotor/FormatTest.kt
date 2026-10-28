@@ -31,13 +31,20 @@ class FormatTest {
 
     @Test
     fun saludoSegunLaHora() {
-        assertEquals("Buenos días, David", Format.greeting(5, "David López"))
-        assertEquals("Buenos días, David", Format.greeting(11, " David "))
-        assertEquals("Buenas tardes, David", Format.greeting(12, "David"))
-        assertEquals("Buenas tardes, David", Format.greeting(18, "David"))
-        assertEquals("Buenas noches, David", Format.greeting(19, "David"))
-        assertEquals("Buenas noches, David", Format.greeting(0, "David"))
-        assertEquals("Buenas noches", Format.greeting(4, ""))  // sesión sin nombre
+        assertEquals("Buenos días", Format.greetingLabel(5))
+        assertEquals("Buenos días", Format.greetingLabel(11))
+        assertEquals("Buenas tardes", Format.greetingLabel(12))
+        assertEquals("Buenas tardes", Format.greetingLabel(18))
+        assertEquals("Buenas noches", Format.greetingLabel(19))
+        assertEquals("Buenas noches", Format.greetingLabel(0))
+        assertEquals("Buenas noches", Format.greetingLabel(4))
+    }
+
+    @Test
+    fun nombreDelSaludo() {
+        assertEquals("David", Format.firstName("David López"))
+        assertEquals("David", Format.firstName("  David  "))
+        assertEquals("", Format.firstName(""))  // sesión sin nombre → "Hola"
     }
 
     @Test
@@ -90,6 +97,18 @@ class FormatTest {
         assertEquals(Format.EventStatus.FULL, Format.eventStatus(false, false, 30, 30))
         assertEquals(Format.EventStatus.LIVE, Format.eventStatus(false, true, 30, 30))  // empezó: ya no importa el cupo
         assertEquals(Format.EventStatus.FINISHED, Format.eventStatus(true, true, 0, 30))
+    }
+
+    @Test
+    fun botonDelDetalle() {
+        assertEquals(Format.RegisterAction.REGISTER, Format.registerAction(false, Format.EventStatus.OPEN))
+        // Ya inscrito: siempre "Ver inscripción", aunque esté agotado, en curso o terminado (nunca vuelve a pedir vehículo)
+        for (status in Format.EventStatus.entries) {
+            assertEquals(Format.RegisterAction.VIEW_REGISTRATION, Format.registerAction(true, status))
+        }
+        for (status in listOf(Format.EventStatus.FULL, Format.EventStatus.LIVE, Format.EventStatus.FINISHED)) {
+            assertEquals(Format.RegisterAction.UNAVAILABLE, Format.registerAction(false, status))
+        }
     }
 
     @Test

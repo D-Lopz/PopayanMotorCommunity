@@ -22,4 +22,10 @@
         <item>Tuning</item>
         <item>Otro</item>
     </string-array>
+
+    <!-- Fotos de la cabecera del login: una al azar cada vez que se abre, sin repetir la anterior.
+         Agregar aquí cada foto (WebP en res/drawable-nodpi/, con derechos de uso), ej.:
+         <item>@drawable/login_hero_1</item>
+         Vacío = solo el degradado. -->
+    <array name="login_heroes" />
 </resources>

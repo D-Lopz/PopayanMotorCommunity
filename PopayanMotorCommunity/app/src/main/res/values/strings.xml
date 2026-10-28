@@ -1,14 +1,24 @@
 <resources>
     <string name="app_name">Popayán Motor</string>
 
-    <string name="login_title">Popayán Motor Community</string>
-    <string name="login_subtitle">Inicia sesión para ver los eventos</string>
+    <!-- Marca (view_brand.xml) -->
+    <string name="brand_initials" translatable="false">PM</string>
+    <string name="brand_name">Popayán</string>
+    <string name="brand_tagline">Motor Community</string>
+    <!-- Login -->
+    <string name="members_area">Área de miembros</string>
+    <string name="login_title">Bienvenido de nuevo</string>
+    <string name="login_subtitle">Tu comunidad sobre ruedas te espera.</string>
+    <string name="no_account">¿Aún no eres miembro?</string>
+    <!-- Inicio -->
+    <string name="hello_name">Hola, %1$s</string>
+    <string name="hello">Hola</string>
     <string name="email">Usuario o correo</string>
     <string name="password">Contraseña</string>
     <string name="login_button">Iniciar sesión</string>
     <string name="error_email">Escribe tu usuario o un correo válido</string>
     <string name="error_password">Escribe tu contraseña</string>
-    <string name="go_register">¿No tienes cuenta? Regístrate</string>
+    <string name="go_register">Crear cuenta</string>
 
     <string name="register_title">Crear cuenta</string>
     <string name="register_subtitle">Únete a la comunidad con tu correo de Popayán Motor</string>
@@ -85,6 +95,7 @@
     <string name="member_since">Miembro desde %1$s</string>
     <string name="admin_badge">Administrador</string>
     <string name="stat_events">Eventos</string>
+    <string name="stat_events_created">Eventos creados</string>
     <string name="stat_vehicles">Vehículos</string>
     <string name="stat_km">Km en rutas</string>
     <string name="stat_km_note">Km estimados con tus inscripciones a rutas ya terminadas. No confirman asistencia ni la distancia que recorriste.</string>
@@ -104,6 +115,7 @@
     <string name="cancel_registration_confirm">¿Cancelar tu inscripción a «%1$s»? Liberarás tu cupo.</string>
     <string name="registration_cancelled">Inscripción cancelada</string>
     <string name="register_event">Inscribirme</string>
+    <string name="already_registered">Ya estás inscrito · Ver inscripción</string>
     <string name="status_open">Cupos abiertos</string>
     <string name="status_full">Agotado</string>
     <string name="status_live">En curso</string>
@@ -116,8 +128,29 @@
         <item quantity="one">%1$d cupo restante de %2$d</item>
         <item quantity="other">%1$d cupos restantes de %2$d</item>
     </plurals>
-    <string name="register_event_title">Inscribirme a «%1$s»</string>
-    <string name="registered_ok">¡Inscrito! Tu código es %1$s</string>
+    <!-- Formulario de inscripción -->
+    <string name="registration_form_title">Inscripción</string>
+    <string name="participation_data">Datos de participación</string>
+    <string name="vehicle">Vehículo</string>
+    <string name="companions">Número de acompañantes</string>
+    <string name="companions_help">Los acompañantes no ocupan cupo.</string>
+    <string name="no_companions">Sin acompañantes</string>
+    <plurals name="companions_count">
+        <item quantity="one">%d acompañante</item>
+        <item quantity="other">%d acompañantes</item>
+    </plurals>
+    <string name="event_contribution">Aporte del evento</string>
+    <string name="accept_rules">Confirmo que mi vehículo está en condiciones aptas y acepto el reglamento.</string>
+    <string name="confirm_registration">Confirmar inscripción</string>
+    <!-- Inscripción confirmada -->
+    <string name="registration_confirmed">Inscripción confirmada</string>
+    <string name="see_you_there">¡Nos vemos en el evento!</string>
+    <string name="spot_reserved">Tu cupo para %1$s está reservado.</string>
+    <string name="registration_code_label">Código de inscripción</string>
+    <string name="date_time">%1$s · %2$s</string>
+    <string name="qr_description">Código QR de la inscripción %1$s</string>
+    <string name="view_my_registration">Ver mi inscripción</string>
+    <string name="back_home">Volver al inicio</string>
     <string name="no_vehicles_to_register">Necesitas un vehículo en tu garaje para inscribirte. Agrégalo en la pestaña Garaje.</string>
 
     <string name="edit_profile">Editar perfil</string>

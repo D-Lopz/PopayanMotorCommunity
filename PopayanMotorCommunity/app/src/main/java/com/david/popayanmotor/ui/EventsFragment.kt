@@ -56,8 +56,11 @@ class EventsFragment : Fragment() {
 
         if (isHome) {
             val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)  // hora local del celular
-            binding.tvGreeting.text = Format.greeting(hour, SessionManager.name(requireContext()))
-            binding.tvGreeting.isVisible = true
+            binding.tvGreetingLabel.text = Format.greetingLabel(hour)
+            // Nombre real del usuario autenticado (lo guarda el login y lo actualiza "Editar perfil").
+            val name = Format.firstName(SessionManager.name(requireContext()))
+            binding.tvGreeting.text = if (name.isEmpty()) getString(R.string.hello) else getString(R.string.hello_name, name)
+            binding.homeHeader.isVisible = true
             binding.tvTitle.setText(R.string.upcoming_events)
             binding.tvTitle.textSize = 14f  // etiqueta pequeña en rojo, como "2 VEHÍCULOS" del diseño
             binding.tvTitle.setTextColor(ContextCompat.getColor(requireContext(), R.color.accent_text))

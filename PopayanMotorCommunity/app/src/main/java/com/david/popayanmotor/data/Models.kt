@@ -64,10 +64,11 @@ data class RegistrationVehicle(
     val plate: String
 )
 
-// Sin member_id: el backend inscribe al dueño del token. Acompañantes: el backend usa 0 por defecto.
+// Sin member_id: el backend inscribe al dueño del token. Acompañantes: 0..10, no ocupan cupo.
 data class RegistrationRequest(
     @SerializedName("event_id") val eventId: Int,
-    @SerializedName("vehicle_id") val vehicleId: Int
+    @SerializedName("vehicle_id") val vehicleId: Int,
+    val companions: Int
 )
 
 // ── Eventos ────────────────────────────────────────────────────

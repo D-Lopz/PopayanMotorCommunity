@@ -19,11 +19,13 @@ interface ApiService {
     @POST("auth/register")
     suspend fun register(@Body body: RegisterRequest): Member
 
-    // GET /api/events?category=Meet&search=moto (los parámetros null no se envían)
+    // GET /api/events?category=Meet&search=moto (los parámetros null no se envían).
+    // created_by: los creados por ese admin (contador del perfil). El backend no pagina: llegan todos.
     @GET("events")
     suspend fun getEvents(
         @Query("category") category: String? = null,
-        @Query("search") search: String? = null
+        @Query("search") search: String? = null,
+        @Query("created_by") createdBy: Int? = null
     ): List<Event>
 
     @GET("events/{id}")
@@ -48,8 +50,12 @@ interface ApiService {
 
     // Con member_id = el propio: un miembro solo puede pedir las suyas, y el admin
     // (que sin filtro recibe las de todos) recibe también solo las suyas.
+    // Con event_id: su inscripción a ese evento (lista vacía si no está inscrito).
     @GET("registrations")
-    suspend fun getRegistrations(@Query("member_id") memberId: Int): List<Registration>
+    suspend fun getRegistrations(
+        @Query("member_id") memberId: Int,
+        @Query("event_id") eventId: Int? = null
+    ): List<Registration>
 
     // 409 si ya está inscrito, el evento empezó o no hay cupos (el mensaje viene en "detail")
     @POST("registrations")

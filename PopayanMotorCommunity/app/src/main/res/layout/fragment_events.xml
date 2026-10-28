@@ -5,17 +5,44 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Solo en la pestaña Inicio: "Buenos días, David" -->
-    <TextView
-        android:id="@+id/tvGreeting"
-        style="@style/TextTitle"
-        android:layout_width="wrap_content"
+    <!-- Solo en la pestaña Inicio: marca + "BUENOS DÍAS" / "Hola, David" (nombre real de la sesión) -->
+    <LinearLayout
+        android:id="@+id/homeHeader"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginTop="16dp"
-        android:textAllCaps="false"
-        android:textSize="30sp"
-        android:visibility="gone" />
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="16dp"
+        android:visibility="gone">
+
+        <include layout="@layout/view_brand" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="@color/outline" />
+
+        <TextView
+            android:id="@+id/tvGreetingLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:letterSpacing="0.15"
+            android:textAllCaps="true"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvGreeting"
+            style="@style/TextTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textAllCaps="false"
+            android:textSize="32sp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tvTitle"

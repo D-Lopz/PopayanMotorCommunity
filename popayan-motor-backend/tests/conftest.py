@@ -70,6 +70,12 @@ def admin(client, db_session):
 
 
 @pytest.fixture()
+def admin2(client, db_session):
+    _make_user(db_session, "Admin Dos", "admin2@mail.com", Role.ADMINISTRATOR)
+    return _login(client, "admin2@mail.com")
+
+
+@pytest.fixture()
 def member(client, db_session):
     _make_user(db_session, "Laura", "laura@mail.com", Role.MEMBER)
     return _login(client, "laura@mail.com")

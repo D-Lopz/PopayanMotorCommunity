@@ -1,4 +1,4 @@
--- Popayán Motor Community — esquema MySQL 8 (v1.2)
+-- Popayán Motor Community — esquema MySQL 8 (v1.3)
 -- Ejecutar completo en MySQL Workbench (o: mysql -u root -p < sql/schema.sql)
 -- OJO: borra y recrea la base completa. La v1.0 está en el tag git v1.0.
 -- Para actualizar una base existente SIN perder datos, usar los scripts de sql/migrations/
@@ -48,9 +48,14 @@ CREATE TABLE event (
   category     ENUM('Meet','Exhibición','Ruta','Competencia','Evento de sonido','Reunión','Otro') NOT NULL,
   price        INT          NOT NULL DEFAULT 0,
   distance_km  FLOAT        NULL,
+  -- v1.3: admin que lo creó (solo autoría, para su contador). NULL = desconocido o cuenta borrada.
+  created_by   INT          NULL,
   CONSTRAINT ck_event_capacity CHECK (max_capacity > 0),
   CONSTRAINT ck_event_price CHECK (price >= 0),
-  CONSTRAINT ck_event_end_date CHECK (end_date IS NULL OR end_date >= date)
+  CONSTRAINT ck_event_end_date CHECK (end_date IS NULL OR end_date >= date),
+  INDEX idx_event_created_by (created_by),
+  CONSTRAINT fk_event_created_by FOREIGN KEY (created_by)
+    REFERENCES member (id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE registration (

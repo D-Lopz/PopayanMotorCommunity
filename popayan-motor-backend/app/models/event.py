@@ -2,7 +2,7 @@ from datetime import date as date_type
 from datetime import datetime, timedelta
 from datetime import time as time_type
 
-from sqlalchemy import CheckConstraint, Date, Enum, Float, String, Text, Time
+from sqlalchemy import CheckConstraint, Date, Enum, Float, ForeignKey, Index, String, Text, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -15,6 +15,7 @@ class Event(Base):
         CheckConstraint("max_capacity > 0", name="ck_event_capacity"),
         CheckConstraint("price >= 0", name="ck_event_price"),
         CheckConstraint("end_date IS NULL OR end_date >= date", name="ck_event_end_date"),
+        Index("idx_event_created_by", "created_by"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -32,6 +33,11 @@ class Event(Base):
     )
     price: Mapped[int] = mapped_column(nullable=False, default=0)  # COP, solo informativo
     distance_km: Mapped[float | None] = mapped_column(Float, nullable=True)
+    # Admin que lo creó (sale del token, nunca del cuerpo). Solo autoría: no da ni quita permisos.
+    # NULL = autor desconocido (eventos anteriores a la migración 003) o cuenta borrada.
+    created_by: Mapped[int | None] = mapped_column(
+        ForeignKey("member.id", ondelete="SET NULL", name="fk_event_created_by"), nullable=True
+    )
 
     # Sin cascade: un evento con inscripciones NO se puede borrar (decisión D6).
     registrations = relationship("Registration", back_populates="event")

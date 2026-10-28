@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query, Response
@@ -6,12 +7,14 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.core.database import get_db
 from app.core.errors import AppError
-from app.dependencies import get_current_member, is_admin
+from app.dependencies import get_current_member, is_admin, require_admin
 from app.models import Member, Registration
-from app.schemas.registration import RegistrationIn, RegistrationOut, RegistrationVehicleIn
+from app.schemas.registration import RegistrationCheckOut, RegistrationIn, RegistrationOut, RegistrationVehicleIn
 from app.services import event_service, registration_service
 
 router = APIRouter(prefix="/registrations", tags=["Registrations"])
+
+CODE_RE = re.compile(r"^PMC-[A-Z0-9]{6}$")
 
 
 def _get_or_404(db: Session, registration_id: int) -> Registration:
@@ -45,6 +48,39 @@ def list_registrations(
         if event_id is not None:
             query = query.where(Registration.event_id == event_id)
     return db.scalars(query).unique().all()
+
+
+# Declarada antes de "/{registration_id}": si no, "verify" se intentaría leer como id.
+@router.get("/verify", response_model=RegistrationCheckOut)
+def verify_registration(
+    code: str = Query(..., description="Contenido del QR, ej. PMC-AB12CD"),
+    event_id: int = Query(..., description="Evento en cuya entrada se valida"),
+    db: Session = Depends(get_db),
+    _: Member = Depends(require_admin),
+):
+    """Valida el QR en la entrada del evento. Solo consulta: no marca asistencia."""
+    code = code.strip().upper()
+    if not CODE_RE.match(code):
+        raise AppError(422, "El código no tiene el formato PMC-XXXXXX", "INVALID_CODE")
+    registration = db.scalar(
+        select(Registration)
+        .options(joinedload(Registration.event), joinedload(Registration.member), joinedload(Registration.vehicle))
+        .where(Registration.code == code)
+    )
+    if registration is None:
+        raise AppError(404, "La inscripción no existe", "REGISTRATION_NOT_FOUND")
+    # No se dice a qué evento pertenece: solo que no es este.
+    if registration.event_id != event_id:
+        raise AppError(409, "Esta inscripción no corresponde a este evento", "WRONG_EVENT")
+    if event_service.is_finished(registration.event):  # misma regla que code_expires_at
+        raise AppError(409, "El evento ya terminó, el código venció", "EVENT_FINISHED")
+    return RegistrationCheckOut(
+        code=registration.code,
+        event_name=registration.event.name,
+        member_name=registration.member.name,
+        companions=registration.companions,
+        vehicle=registration.vehicle,
+    )
 
 
 @router.get("/{registration_id}", response_model=RegistrationOut)

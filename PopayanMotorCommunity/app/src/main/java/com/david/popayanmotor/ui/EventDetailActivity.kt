@@ -8,12 +8,12 @@ import androidx.lifecycle.lifecycleScope
 import com.david.popayanmotor.R
 import com.david.popayanmotor.data.ApiError
 import com.david.popayanmotor.data.Event
-import com.david.popayanmotor.data.RegistrationRequest
 import com.david.popayanmotor.data.RetrofitClient
 import com.david.popayanmotor.data.SessionManager
 import com.david.popayanmotor.databinding.ActivityEventDetailBinding
 import com.david.popayanmotor.databinding.ItemDetailRowBinding
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -24,6 +24,16 @@ class EventDetailActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_ID = "event_id"
+
+        /** Ícono según la categoría (los nombres son los del ENUM EventCategory del backend). También lo usa la inscripción. */
+        fun categoryIcon(category: String) = when (category) {
+            "Meet", "Reunión" -> R.drawable.ic_group
+            "Exhibición" -> R.drawable.ic_garage
+            "Ruta" -> R.drawable.ic_route
+            "Competencia" -> R.drawable.ic_flag
+            "Evento de sonido" -> R.drawable.ic_sound
+            else -> R.drawable.ic_event
+        }
     }
 
     private lateinit var binding: ActivityEventDetailBinding
@@ -55,7 +65,16 @@ class EventDetailActivity : AppCompatActivity() {
         lifecycleScope.launch {
             showState(loading = true)
             try {
-                show(RetrofitClient.api.getEvent(eventId))
+                // Miembro: el evento y su inscripción a él en paralelo. El estado sale del backend,
+                // no de una variable local; el 409 ALREADY_REGISTERED sigue protegiendo los casos de carrera.
+                val (event, registered) = coroutineScope {
+                    val e = async { RetrofitClient.api.getEvent(eventId) }
+                    val r = if (isAdmin) null else async {
+                        RetrofitClient.api.getRegistrations(SessionManager.id(this@EventDetailActivity)!!, eventId)
+                    }
+                    e.await() to (r?.await()?.isNotEmpty() == true)
+                }
+                show(event, registered)
                 showState(content = true)
             } catch (e: Exception) {
                 if (ApiError.isUnauthorized(e)) return@launch LoginActivity.restart(this@EventDetailActivity)
@@ -65,7 +84,7 @@ class EventDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun show(e: Event) {
+    private fun show(e: Event, registered: Boolean) {
         binding.ivCategory.setImageResource(categoryIcon(e.category))
         binding.tvCategory.text = e.category
         binding.tvDate.text = Format.longDate(e.date, e.endDate)
@@ -99,73 +118,28 @@ class EventDetailActivity : AppCompatActivity() {
         binding.tvPrice.text = Format.price(e.price) ?: getString(R.string.free)
         // Inscribirse: solo miembros y solo con cupos antes de que empiece (el backend valida lo mismo).
         binding.btnRegister.isVisible = !isAdmin
-        binding.btnRegister.isEnabled = status == Format.EventStatus.OPEN
-        // Si no se puede, el botón deshabilitado dice por qué ("Agotado", "En curso", "Terminado").
-        binding.btnRegister.text = if (status == Format.EventStatus.OPEN) getString(R.string.register_event) else binding.tvStatus.text
-        binding.btnRegister.setOnClickListener { askVehicle(e) }
+        val action = Format.registerAction(registered, status)
+        binding.btnRegister.isEnabled = action != Format.RegisterAction.UNAVAILABLE
+        binding.btnRegister.text = when (action) {
+            Format.RegisterAction.REGISTER -> getString(R.string.register_event)
+            Format.RegisterAction.VIEW_REGISTRATION -> getString(R.string.already_registered)
+            // Si no se puede, el botón deshabilitado dice por qué ("Agotado", "En curso", "Terminado").
+            Format.RegisterAction.UNAVAILABLE -> binding.tvStatus.text
+        }
+        binding.btnRegister.setOnClickListener {
+            if (action == Format.RegisterAction.VIEW_REGISTRATION) {
+                startActivity(Intent(this, RegistrationsActivity::class.java))
+            } else {
+                startActivity(Intent(this, RegistrationFormActivity::class.java)
+                    .putExtra(RegistrationFormActivity.EXTRA_EVENT_ID, e.id))
+            }
+        }
     }
 
     private fun row(row: ItemDetailRowBinding, icon: Int, label: Int, value: String) {
         row.ivIcon.setImageResource(icon)
         row.tvLabel.setText(label)
         row.tvValue.text = value
-    }
-
-    /** Ícono de la cabecera según la categoría (los nombres son los del ENUM EventCategory del backend). */
-    private fun categoryIcon(category: String) = when (category) {
-        "Meet", "Reunión" -> R.drawable.ic_group
-        "Exhibición" -> R.drawable.ic_garage
-        "Ruta" -> R.drawable.ic_route
-        "Competencia" -> R.drawable.ic_flag
-        "Evento de sonido" -> R.drawable.ic_sound
-        else -> R.drawable.ic_event
-    }
-
-    /** Inscribirse: elige uno de sus vehículos (el principal preseleccionado) y hace POST /api/registrations. */
-    private fun askVehicle(event: Event) {
-        lifecycleScope.launch {
-            try {
-                val vehicles = RetrofitClient.api.getVehicles(SessionManager.id(this@EventDetailActivity)!!)
-                    .sortedByDescending { it.isPrimary }
-                if (vehicles.isEmpty()) {
-                    // El garaje es una pestaña de MainActivity: se vuelve atrás para llegar a él.
-                    MaterialAlertDialogBuilder(this@EventDetailActivity)
-                        .setMessage(R.string.no_vehicles_to_register)
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show()
-                    return@launch
-                }
-                var chosen = 0
-                MaterialAlertDialogBuilder(this@EventDetailActivity)
-                    .setTitle(getString(R.string.register_event_title, event.name))
-                    .setSingleChoiceItems(vehicles.map { "${it.brand} ${it.model} · ${it.plate}" }.toTypedArray(), 0) { _, i -> chosen = i }
-                    .setNegativeButton(R.string.cancel, null)
-                    .setPositiveButton(R.string.register_event) { _, _ -> register(event, vehicles[chosen].id) }
-                    .show()
-            } catch (e: Exception) {
-                actionError(e)
-            }
-        }
-    }
-
-    private fun register(event: Event, vehicleId: Int) {
-        lifecycleScope.launch {
-            try {
-                val registration = RetrofitClient.api.createRegistration(RegistrationRequest(event.id, vehicleId))
-                MaterialAlertDialogBuilder(this@EventDetailActivity)
-                    .setMessage(getString(R.string.registered_ok, registration.code))
-                    .setPositiveButton(android.R.string.ok, null)
-                    .show()
-                load()  // actualiza los cupos
-            } catch (e: Exception) {
-                actionError(e)  // ej. 409: ya inscrito, sin cupos o el evento empezó
-            }
-        }
-    }
-
-    private fun actionError(e: Exception) {
-        if (ApiError.isUnauthorized(e)) return LoginActivity.restart(this)
-        MaterialAlertDialogBuilder(this).setMessage(ApiError.message(e)).setPositiveButton(android.R.string.ok, null).show()
     }
 
     private fun showState(loading: Boolean = false, error: Boolean = false, content: Boolean = false) {

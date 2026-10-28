@@ -8,6 +8,9 @@
     <color name="surface_high">#333333</color>   <!-- diálogos, menús, barra del detalle -->
     <color name="outline">#3D3D3D</color>        <!-- bordes de tarjetas y divisores -->
     <color name="outline_strong">#77736D</color> <!-- borde de campos y botones delineados (3,6:1 sobre carbón) -->
+    <!-- Carbón con transparencia: degradado sobre la foto del login -->
+    <color name="bg_clear">#00202020</color>
+    <color name="bg_scrim">#66202020</color>
 
     <!-- Rojo racing: rellenos (botones, chips, FAB). Marfil sobre rojo = 5,2:1 -->
     <color name="accent">#C8102E</color>

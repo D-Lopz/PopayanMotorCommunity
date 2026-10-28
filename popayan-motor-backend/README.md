@@ -123,7 +123,7 @@ El primer vehículo de cada miembro queda como principal (`is_primary`). Al marc
 
 | Método | Endpoint | Descripción | Acceso |
 |---|---|---|---|
-| GET | `/api/events?category=&date=&search=` | Consultar y filtrar eventos | Usuario autenticado |
+| GET | `/api/events?category=&date=&search=&created_by=` | Consultar y filtrar eventos (`created_by`: los creados por ese administrador) | Usuario autenticado |
 | GET | `/api/events/{id}` | Consultar el detalle de un evento | Usuario autenticado |
 | POST | `/api/events` | Crear un evento | Administrador |
 | PUT | `/api/events/{id}` | Actualizar un evento | Administrador |
@@ -136,6 +136,7 @@ Cada evento devuelve, además de sus campos, `registered_count` (cupos ocupados)
 | Método | Endpoint | Descripción | Acceso |
 |---|---|---|---|
 | GET | `/api/registrations?event_id=&member_id=` | Consultar inscripciones | Miembro: propias; administrador: todas |
+| GET | `/api/registrations/verify?code=&event_id=` | Validar el código QR en la entrada del evento (solo consulta, no marca asistencia) | Administrador |
 | POST | `/api/registrations` | Inscribir al miembro autenticado en un evento | Usuario autenticado |
 | GET | `/api/registrations/{id}` | Consultar una inscripción | Propietario o administrador |
 | PUT | `/api/registrations/{id}` | Cambiar el vehículo de la inscripción (solo antes de que termine el evento) | Propietario |

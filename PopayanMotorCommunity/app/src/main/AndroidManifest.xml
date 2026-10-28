@@ -43,6 +43,10 @@
 
         <activity android:name=".ui.EventDetailActivity" />
 
+        <activity android:name=".ui.RegistrationFormActivity" />
+
+        <activity android:name=".ui.RegistrationSuccessActivity" />
+
         <activity
             android:name=".ui.VehicleFormActivity"
             android:windowSoftInputMode="adjustResize" />

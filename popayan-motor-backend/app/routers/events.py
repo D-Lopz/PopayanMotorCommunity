@@ -20,6 +20,7 @@ def list_events(
     category: Optional[EventCategory] = Query(None, description="Ej: Meet"),
     date: Optional[date_type] = Query(None, description="Fecha exacta AAAA-MM-DD"),
     search: Optional[str] = Query(None, description="Busca en nombre, lugar o descripción"),
+    created_by: Optional[int] = Query(None, description="Eventos creados por ese administrador"),
     db: Session = Depends(get_db),
     _: Member = Depends(get_current_member),
 ):
@@ -28,6 +29,8 @@ def list_events(
         query = query.where(Event.category == category)
     if date:
         query = query.where(Event.date == date)
+    if created_by is not None:
+        query = query.where(Event.created_by == created_by)
     if search:
         like = f"%{search.strip()}%"
         query = query.where(
@@ -43,8 +46,8 @@ def get_event(event_id: int, db: Session = Depends(get_db), _: Member = Depends(
 
 
 @router.post("", response_model=EventOut, status_code=201)
-def create_event(data: EventIn, db: Session = Depends(get_db), _: Member = Depends(require_admin)):
-    event = event_service.create_event(db, data)
+def create_event(data: EventIn, db: Session = Depends(get_db), current: Member = Depends(require_admin)):
+    event = event_service.create_event(db, data, current)
     return event_service.to_out(db, [event])[0]
 
 

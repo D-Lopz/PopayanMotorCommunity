@@ -82,3 +82,77 @@ def test_member_cannot_edit_or_delete_event(client, member, make_event):
               client.delete(f"/api/events/{event['id']}", headers=member)):
         assert r.status_code == 403 and r.json()["code"] == "FORBIDDEN"
     assert client.get(f"/api/events/{event['id']}", headers=member).json()["name"] == event["name"]  # sin cambios
+
+
+# ── Autoría del evento (created_by): solo para el contador del admin, no da permisos ──
+
+def _event_body(name="Meet"):
+    return {"name": name, "date": str(date.today() + timedelta(days=10)), "time": "16:00",
+            "location": "Parque Caldas", "max_capacity": 10, "category": "Meet"}
+
+
+def _create(client, headers, name="Meet", **extra):
+    r = client.post("/api/events", json={**_event_body(name), **extra}, headers=headers)
+    assert r.status_code == 201, r.text
+    return r.json()["id"]
+
+
+def _my_id(client, headers):
+    from app.core.security import decode_access_token
+    return int(decode_access_token(headers["Authorization"].split()[1])["sub"])
+
+
+def _count(client, headers, admin_id):
+    return len(client.get(f"/api/events?created_by={admin_id}", headers=headers).json())
+
+
+def test_creator_comes_from_token_not_body(client, admin, admin2, db_session):
+    from app.models import Event
+    a, b = _my_id(client, admin), _my_id(client, admin2)
+    event_id = _create(client, admin, created_by=b)  # intento de suplantar: se ignora
+    assert db_session.get(Event, event_id).created_by == a
+
+
+def test_counter_is_independent_per_admin(client, admin, admin2, member):
+    a, b = _my_id(client, admin), _my_id(client, admin2)
+    for i in range(2):
+        _create(client, admin, f"Evento A{i}")
+    for i in range(3):
+        _create(client, admin2, f"Evento B{i}")
+    assert (_count(client, admin, a), _count(client, admin, b)) == (2, 3)
+    _create(client, admin2, "Evento B3")
+    assert (_count(client, admin2, a), _count(client, admin2, b)) == (2, 4)
+    assert len(client.get("/api/events", headers=member).json()) == 6  # sin filtro: todos
+
+
+def test_edit_keeps_creator_and_permissions_stay_global(client, admin, admin2, db_session):
+    from app.models import Event
+    a = _my_id(client, admin)
+    event_id = _create(client, admin)
+    # otro admin puede editarlo (permisos globales sin cambios) y el autor no cambia
+    r = client.put(f"/api/events/{event_id}", json={**_event_body("Editado"), "created_by": 999}, headers=admin2)
+    assert r.status_code == 200
+    db_session.expire_all()
+    assert db_session.get(Event, event_id).created_by == a
+    assert "created_by" not in r.json()  # no se expone a la app
+
+
+def test_unknown_creator_counts_for_nobody(client, admin, db_session):
+    from datetime import time
+
+    from app.models import Event
+    from app.models.enums import EventCategory
+    # como los eventos anteriores a la migración 003: sin autor
+    db_session.add(Event(name="Evento viejo", date=date.today() + timedelta(days=3), time=time(9, 0),
+                         location="Centro", max_capacity=5, category=EventCategory.MEET))
+    db_session.commit()
+    assert _count(client, admin, _my_id(client, admin)) == 0
+    assert len(client.get("/api/events", headers=admin).json()) == 1  # sigue visible
+
+
+def test_member_counter_still_counts_registrations(client, admin, member, make_event, register):
+    event = make_event()
+    register(member, event["id"])
+    me = _my_id(client, member)
+    assert len(client.get(f"/api/registrations?member_id={me}", headers=member).json()) == 1
+    assert _count(client, member, me) == 0

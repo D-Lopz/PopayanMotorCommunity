@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Lado del QR (con su margen marfil): confirmación y tarjetas de "Mis inscripciones" -->
+    <dimen name="qr_large">180dp</dimen>
+    <dimen name="qr_small">104dp</dimen>
+</resources>

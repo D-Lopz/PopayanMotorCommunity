@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.core.errors import AppError
 from app.core.timeutils import now_colombia
-from app.models import Event, Registration
+from app.models import Event, Member, Registration
 from app.schemas.event import EventIn, EventOut
 
 
@@ -60,9 +60,9 @@ def _check_future(data: EventIn) -> None:
         raise AppError(422, "La fecha y hora del evento debe ser futura", "INVALID_EVENT_DATE")
 
 
-def create_event(db: Session, data: EventIn) -> Event:
+def create_event(db: Session, data: EventIn, creator: Member) -> Event:
     _check_future(data)
-    event = Event(**data.model_dump())
+    event = Event(**data.model_dump(), created_by=creator.id)
     db.add(event)
     db.commit()
     db.refresh(event)

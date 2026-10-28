@@ -62,15 +62,22 @@ class ProfileFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             showState(loading = true)
             try {
-                // Las tres consultas van en paralelo; todas filtradas al propio miembro.
+                // Las consultas van en paralelo; todas filtradas al propio miembro.
                 // coroutineScope: si una falla, el error llega a este catch en vez de cerrar la app.
+                // "Eventos": el admin cuenta los que él creó (created_by, lo guarda el backend con su token);
+                // el miembro, sus inscripciones. El backend es la fuente de los dos números.
+                val admin = SessionManager.isAdmin(requireContext())
+                var created: Int? = null
                 val (member, vehicles, registrations) = coroutineScope {
                     val m = async { RetrofitClient.api.getMember(id) }
                     val v = async { RetrofitClient.api.getVehicles(id) }
                     val r = async { RetrofitClient.api.getRegistrations(id) }
+                    val c = if (admin) async { RetrofitClient.api.getEvents(createdBy = id).size } else null
+                    created = c?.await()
                     Triple(m.await(), v.await(), r.await())
                 }
-                show(member, vehicles.size, registrations.size, Format.kmInRoutes(registrations, Format.nowColombia()))
+                show(member, vehicles.size, created ?: registrations.size, created != null,
+                    Format.kmInRoutes(registrations, Format.nowColombia()))
                 showState(content = true)
             } catch (e: Exception) {
                 if (ApiError.isUnauthorized(e)) {
@@ -83,7 +90,7 @@ class ProfileFragment : Fragment() {
         }
     }
 
-    private fun show(member: Member, vehicles: Int, events: Int, km: Double) {
+    private fun show(member: Member, vehicles: Int, events: Int, eventsCreated: Boolean, km: Double) {
         binding.tvInitials.text = Format.initials(member.name)
         binding.tvName.text = member.name
         val since = getString(R.string.member_since, Format.monthYear(member.joinDate))
@@ -93,6 +100,7 @@ class ProfileFragment : Fragment() {
         binding.tvAdminBadge.isVisible = isAdmin
         binding.rowAdmin.isVisible = isAdmin
         binding.tvEvents.text = String.format(Locale.US, "%02d", events)
+        binding.tvEventsLabel.setText(if (eventsCreated) R.string.stat_events_created else R.string.stat_events)
         binding.tvVehicles.text = String.format(Locale.US, "%02d", vehicles)
         binding.tvKm.text = Format.km(km)
     }

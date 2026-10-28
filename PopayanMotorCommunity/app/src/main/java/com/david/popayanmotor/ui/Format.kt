@@ -42,6 +42,15 @@ object Format {
         else -> EventStatus.OPEN
     }
 
+    enum class RegisterAction { REGISTER, VIEW_REGISTRATION, UNAVAILABLE }
+
+    /** Botón del detalle: si ya tiene inscripción solo se puede ver; si no, inscribirse solo con cupos abiertos. */
+    fun registerAction(alreadyRegistered: Boolean, status: EventStatus) = when {
+        alreadyRegistered -> RegisterAction.VIEW_REGISTRATION
+        status == EventStatus.OPEN -> RegisterAction.REGISTER
+        else -> RegisterAction.UNAVAILABLE
+    }
+
     /** "10:00:00" → "10:00" */
     fun time(time: String) = time.take(5)
 
@@ -92,14 +101,13 @@ object Format {
             .apply { timeZone = TimeZone.getTimeZone("America/Bogota") }
             .format(Date())
 
-    /** (9, "David López") → "Buenos días, David". Mañana 5–11 h, tarde 12–18 h, noche el resto. */
-    fun greeting(hour: Int, fullName: String): String {
-        val text = when (hour) {
-            in 5..11 -> "Buenos días"
-            in 12..18 -> "Buenas tardes"
-            else -> "Buenas noches"
-        }
-        val firstName = fullName.trim().substringBefore(" ")
-        return if (firstName.isEmpty()) text else "$text, $firstName"
+    /** Etiqueta del Inicio según la hora del celular: mañana 5–11 h, tarde 12–18 h, noche el resto. */
+    fun greetingLabel(hour: Int) = when (hour) {
+        in 5..11 -> "Buenos días"
+        in 12..18 -> "Buenas tardes"
+        else -> "Buenas noches"
     }
+
+    /** " David López " → "David"; vacío si la sesión no tiene nombre. */
+    fun firstName(fullName: String) = fullName.trim().substringBefore(" ")
 }

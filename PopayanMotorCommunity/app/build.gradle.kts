@@ -54,5 +54,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.recyclerview)
     implementation(libs.material)
+    // Solo para GENERAR el QR de la inscripción (Java puro, Apache-2.0, sin permisos ni Play Services)
+    implementation(libs.zxing.core)
     testImplementation(libs.junit)
 }

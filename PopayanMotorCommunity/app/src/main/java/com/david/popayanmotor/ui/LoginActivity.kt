@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
+import kotlin.random.Random
 import com.david.popayanmotor.R
 import com.david.popayanmotor.data.ApiError
 import com.david.popayanmotor.data.LoginRequest
@@ -28,9 +29,27 @@ object LoginForm {
     }
 }
 
+/** Foto del login (sin Android, para probarla con JUnit). */
+object LoginHero {
+    /**
+     * Índice de la foto a mostrar entre [count]: al azar y distinto de [last] si hay más de una.
+     * null sin fotos. Si [last] ya no existe (se quitaron fotos) se elige entre todas.
+     */
+    fun next(count: Int, last: Int, random: Random = Random.Default): Int? = when {
+        count <= 0 -> null
+        count == 1 -> 0
+        last !in 0 until count -> random.nextInt(count)
+        else -> random.nextInt(count - 1).let { if (it >= last) it + 1 else it }  // salta la anterior
+    }
+}
+
 class LoginActivity : AppCompatActivity() {
 
     companion object {
+        // Fuera de la sesión: SessionManager.clear() al cerrar sesión no debe olvidar la última foto.
+        private const val HERO_PREFS = "login_ui"
+        private const val KEY_LAST_HERO = "last_hero"
+
         /** Token vencido en una pantalla de formulario: borra la sesión y vuelve al login sin dejar pantallas atrás. */
         fun restart(activity: Activity) {
             SessionManager.clear(activity)
@@ -55,6 +74,7 @@ class LoginActivity : AppCompatActivity() {
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        showHero(newOpening = savedInstanceState == null)  // al rotar se conserva la misma foto
 
         // El dominio se ve al final del campo mientras el texto no tenga "@" (al escribir, borrar o pegar).
         binding.etEmail.doAfterTextChanged { text ->
@@ -66,6 +86,21 @@ class LoginActivity : AppCompatActivity() {
         binding.btnLogin.setOnClickListener { login() }
         binding.btnGoRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
+        }
+    }
+
+    private fun showHero(newOpening: Boolean) {
+        val heroes = resources.obtainTypedArray(R.array.login_heroes)
+        try {
+            val prefs = getSharedPreferences(HERO_PREFS, MODE_PRIVATE)
+            val last = prefs.getInt(KEY_LAST_HERO, -1)
+            val index = (if (newOpening) LoginHero.next(heroes.length(), last) else last.takeIf { it in 0 until heroes.length() })
+                ?: return  // sin fotos: queda el degradado
+            binding.ivHero.setImageResource(heroes.getResourceId(index, 0))
+            binding.ivHero.isVisible = true
+            prefs.edit().putInt(KEY_LAST_HERO, index).apply()
+        } finally {
+            heroes.recycle()
         }
     }
 

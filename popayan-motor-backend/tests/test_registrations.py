@@ -155,3 +155,71 @@ def test_cannot_cancel_started_event(client, admin, member, db_session, make_veh
     r = client.delete(f"/api/registrations/{reg.id}", headers=member)
     assert r.status_code == 409 and r.json()["code"] == "EVENT_STARTED"
     assert client.delete(f"/api/registrations/{reg.id}", headers=admin).status_code == 204
+
+
+# ── Verificación del QR en la entrada (GET /registrations/verify, solo admin) ──
+
+def _verify(client, headers, code, event_id):
+    return client.get("/api/registrations/verify", params={"code": code, "event_id": event_id}, headers=headers)
+
+
+def test_verify_ok_returns_only_needed_fields(client, admin, member, make_event, register):
+    event = make_event()
+    reg = register(member, event["id"], companions=2).json()
+    r = _verify(client, admin, reg["code"], event["id"])
+    assert r.status_code == 200
+    assert r.json() == {
+        "code": reg["code"],
+        "event_name": "Meet de Noviembre",
+        "member_name": "Laura",
+        "companions": 2,
+        "vehicle": {"brand": "BMW", "model": "M3", "plate": reg["vehicle"]["plate"]},
+    }
+
+
+def test_verify_normalizes_code(client, admin, member, make_event, register):
+    event = make_event()
+    code = register(member, event["id"]).json()["code"]
+    assert _verify(client, admin, f"  {code.lower()} ", event["id"]).status_code == 200
+
+
+def test_verify_only_admin(client, member, make_event, register):
+    event = make_event()
+    code = register(member, event["id"]).json()["code"]
+    r = _verify(client, member, code, event["id"])
+    assert r.status_code == 403 and r.json()["code"] == "FORBIDDEN"
+    assert _verify(client, {}, code, event["id"]).status_code == 401
+
+
+def test_verify_invalid_format_and_unknown(client, admin, make_event):
+    event = make_event()
+    for bad in ("PMC-123", "XYZ-ABC234", "PMC-ABC2345", ""):
+        r = _verify(client, admin, bad, event["id"])
+        assert r.status_code == 422, bad
+    r = _verify(client, admin, "PMC-ZZZZZZ", event["id"])
+    assert r.status_code == 404 and r.json()["code"] == "REGISTRATION_NOT_FOUND"
+
+
+def test_verify_wrong_event(client, admin, member, make_event, register):
+    event = make_event()
+    other = make_event(name="Otro evento")
+    code = register(member, event["id"]).json()["code"]
+    r = _verify(client, admin, code, other["id"])
+    assert r.status_code == 409 and r.json()["code"] == "WRONG_EVENT"
+    assert "Meet de Noviembre" not in r.json()["detail"]  # no revela el evento real
+
+
+def test_verify_finished_event(client, admin, member, make_vehicle, db_session):
+    event = _event_in_db(db_session, days_ago=2)  # ya terminó
+    reg = _register_in_db(db_session, client, member, event, make_vehicle(member)["id"])
+    r = _verify(client, admin, reg.code, event.id)
+    assert r.status_code == 409 and r.json()["code"] == "EVENT_FINISHED"
+
+
+def test_verify_without_vehicle(client, admin, member, make_vehicle, db_session):
+    event = _event_in_db(db_session, days_ago=0, end_date=date.today() + timedelta(days=1))  # en curso
+    reg = _register_in_db(db_session, client, member, event, make_vehicle(member)["id"])
+    reg.vehicle_id = None  # como queda si el vehículo se borró
+    db_session.commit()
+    r = _verify(client, admin, reg.code, event.id)
+    assert r.status_code == 200 and r.json()["vehicle"] is None
