@@ -27,5 +27,9 @@
          Agregar aquí cada foto (WebP en res/drawable-nodpi/, con derechos de uso), ej.:
          <item>@drawable/login_hero_1</item>
          Vacío = solo el degradado. -->
-    <array name="login_heroes" />
+    <array name="login_heroes">
+        <item>@drawable/login_hero_1</item>  <!-- GT-R naranja, meet en la calle -->
+        <item>@drawable/login_hero_2</item>  <!-- Huracán azul, meet en la calle -->
+        <item>@drawable/login_hero_3</item>  <!-- Golf R azul, meet en bodega -->
+    </array>
 </resources>

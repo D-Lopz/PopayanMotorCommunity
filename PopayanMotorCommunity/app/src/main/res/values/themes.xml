@@ -77,10 +77,10 @@
         <item name="iconTint">@color/accent_text</item>
     </style>
 
-    <!-- Títulos: condensada en negrita (shortcut: fuente del sistema; Barlow Condensed se agrega desde Resource Manager) -->
+    <!-- Títulos: Barlow Condensed Bold (res/font, licencia OFL en licenses/). Sin textStyle bold:
+         el archivo ya es negrita y Android le sumaría una negrita sintética. -->
     <style name="TextTitle">
-        <item name="android:fontFamily">sans-serif-condensed</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:fontFamily">@font/barlow_condensed_bold</item>
         <item name="android:textAllCaps">true</item>
         <item name="android:textColor">@color/text_primary</item>
     </style>
