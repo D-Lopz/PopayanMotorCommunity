@@ -115,7 +115,7 @@
     <string name="cancel_registration_confirm">¿Cancelar tu inscripción a «%1$s»? Liberarás tu cupo.</string>
     <string name="registration_cancelled">Inscripción cancelada</string>
     <string name="register_event">Inscribirme</string>
-    <string name="already_registered">Ya estás inscrito · Ver inscripción</string>
+    <string name="already_registered">Ver mi inscripción</string>
     <string name="status_open">Cupos abiertos</string>
     <string name="status_full">Agotado</string>
     <string name="status_live">En curso</string>

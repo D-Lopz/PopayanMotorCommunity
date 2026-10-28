@@ -57,7 +57,7 @@ class RegistrationSuccessActivity : AppCompatActivity() {
 
         binding.btnViewRegistration.setOnClickListener {
             startActivity(Intent(this, RegistrationsActivity::class.java))
-            finish()  // "atrás" desde Mis inscripciones vuelve al detalle, que ya dice "Ya estás inscrito"
+            finish()  // "atrás" desde Mis inscripciones vuelve al detalle, que ya dice "Ver mi inscripción"
         }
         binding.btnHome.setOnClickListener {
             // Inicio nuevo y sin pantallas atrás: MainActivity abre la pestaña Inicio.

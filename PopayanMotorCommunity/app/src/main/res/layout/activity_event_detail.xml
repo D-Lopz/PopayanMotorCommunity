@@ -18,6 +18,8 @@
         app:navigationIcon="@drawable/ic_back"
         app:navigationIconTint="@color/text_primary" />
 
+    <!-- Barra inferior: aporte + Inscribirme (el botón solo lo ve un miembro) -->
+
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -180,7 +182,6 @@
         </LinearLayout>
     </FrameLayout>
 
-    <!-- Barra inferior: aporte + Inscribirme (el botón solo lo ve un miembro) -->
     <LinearLayout
         android:id="@+id/bottomBar"
         android:layout_width="match_parent"
@@ -193,9 +194,9 @@
         android:visibility="gone">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_marginEnd="16dp"
             android:orientation="vertical">
 
             <TextView
@@ -217,9 +218,9 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRegister"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="56dp"
-            android:minWidth="160dp"
+            android:layout_weight="1"
             android:text="@string/register_event"
             android:textSize="16sp"
             app:cornerRadius="12dp" />
