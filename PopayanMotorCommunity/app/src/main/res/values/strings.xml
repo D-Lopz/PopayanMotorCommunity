@@ -3,10 +3,10 @@
 
     <string name="login_title">Popayán Motor Community</string>
     <string name="login_subtitle">Inicia sesión para ver los eventos</string>
-    <string name="email">Correo</string>
+    <string name="email">Usuario o correo</string>
     <string name="password">Contraseña</string>
     <string name="login_button">Iniciar sesión</string>
-    <string name="error_email">Escribe un correo válido</string>
+    <string name="error_email">Escribe tu usuario o un correo válido</string>
     <string name="error_password">Escribe tu contraseña</string>
     <string name="go_register">¿No tienes cuenta? Regístrate</string>
 
@@ -50,7 +50,10 @@
     <string name="back">Volver</string>
 
     <string name="brand">Marca</string>
-    <string name="brand_hint">Ej. Mazda</string>
+    <string name="brand_hint">Ej. Great Wall</string>
+    <string name="brand_other">Nombre de la marca</string>
+    <string name="error_brand">Selecciona la marca</string>
+    <string name="error_brand_other">Entre 2 y 30 letras o números (se permiten espacios y . &amp; \' -)</string>
     <string name="model">Modelo</string>
     <string name="model_hint">Ej. MX-5</string>
     <string name="year">Año</string>
@@ -101,11 +104,21 @@
     <string name="cancel_registration_confirm">¿Cancelar tu inscripción a «%1$s»? Liberarás tu cupo.</string>
     <string name="registration_cancelled">Inscripción cancelada</string>
     <string name="register_event">Inscribirme</string>
+    <string name="status_open">Cupos abiertos</string>
+    <string name="status_full">Agotado</string>
+    <string name="status_live">En curso</string>
+    <string name="meeting_point">Punto de encuentro</string>
+    <string name="availability">Disponibilidad</string>
+    <string name="distance">Distancia</string>
+    <string name="about_event">Acerca del evento</string>
+    <string name="price_label">Aporte</string>
+    <plurals name="spots_left">
+        <item quantity="one">%1$d cupo restante de %2$d</item>
+        <item quantity="other">%1$d cupos restantes de %2$d</item>
+    </plurals>
     <string name="register_event_title">Inscribirme a «%1$s»</string>
     <string name="registered_ok">¡Inscrito! Tu código es %1$s</string>
-    <string name="event_started">Este evento ya empezó, no admite inscripciones</string>
-    <string name="no_vehicles_to_register">Necesitas un vehículo en tu garaje para inscribirte.</string>
-    <string name="go_garage">Ir al garaje</string>
+    <string name="no_vehicles_to_register">Necesitas un vehículo en tu garaje para inscribirte. Agrégalo en la pestaña Garaje.</string>
 
     <string name="edit_profile">Editar perfil</string>
     <string name="phone">Celular</string>

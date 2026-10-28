@@ -19,6 +19,16 @@ def test_admin_crud_event(client, admin, make_event):
     assert client.get(f"/api/events/{event['id']}", headers=admin).status_code == 404
 
 
+def test_member_can_view_event_detail(client, member, make_event):
+    event = make_event(name="Ruta al Puracé", distance_km=86)
+    r = client.get(f"/api/events/{event['id']}", headers=member)
+    assert r.status_code == 200
+    assert r.json()["name"] == "Ruta al Puracé" and r.json()["registered_count"] == 0
+    assert client.get(f"/api/events/{event['id']}").status_code == 401  # sin sesión no
+    r = client.get("/api/events/999999", headers=member)
+    assert r.status_code == 404 and r.json()["code"] == "EVENT_NOT_FOUND"
+
+
 def test_member_cannot_create_event(client, member):
     r = client.post("/api/events", headers=member, json={
         "name": "X evento", "date": str(date.today() + timedelta(days=5)), "time": "10:00",

@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Patterns
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.david.popayanmotor.R
 import com.david.popayanmotor.data.ApiError
@@ -14,6 +15,18 @@ import com.david.popayanmotor.data.RetrofitClient
 import com.david.popayanmotor.data.SessionManager
 import com.david.popayanmotor.databinding.ActivityLoginBinding
 import kotlinx.coroutines.launch
+
+/** Regla del correo del login (sin Android, para probarla con JUnit). */
+object LoginForm {
+    /**
+     * "david" → "david@popayanmotor.com". Si ya trae "@" se envía tal cual: así no se duplica el dominio
+     * y las cuentas antiguas con otros dominios siguen entrando. El backend valida el correo igual que antes.
+     */
+    fun email(text: String): String {
+        val t = text.trim()
+        return if (t.isEmpty() || "@" in t) t else t + RegisterForm.EMAIL_DOMAIN
+    }
+}
 
 class LoginActivity : AppCompatActivity() {
 
@@ -43,6 +56,13 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // El dominio se ve al final del campo mientras el texto no tenga "@" (al escribir, borrar o pegar).
+        binding.etEmail.doAfterTextChanged { text ->
+            val suffix = if (text?.contains('@') == true) null else RegisterForm.EMAIL_DOMAIN
+            // Solo al cambiar: reasignar el sufijo en cada tecla vuelve a medir el campo y hace lento escribir.
+            if (binding.tilEmail.suffixText?.toString() != suffix) binding.tilEmail.suffixText = suffix
+        }
+        binding.tilEmail.suffixText = RegisterForm.EMAIL_DOMAIN
         binding.btnLogin.setOnClickListener { login() }
         binding.btnGoRegister.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
@@ -50,7 +70,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun login() {
-        val email = binding.etEmail.text.toString().trim()
+        val email = LoginForm.email(binding.etEmail.text.toString())
         val password = binding.etPassword.text.toString()
 
         // Validación en la app (rápida); el backend vuelve a validar.

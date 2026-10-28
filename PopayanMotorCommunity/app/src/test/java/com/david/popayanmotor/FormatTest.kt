@@ -83,6 +83,16 @@ class FormatTest {
     }
 
     @Test
+    fun detalleDeEvento() {
+        assertEquals("sábado, 31 de octubre", Format.longDate("2026-10-31", null))
+        assertEquals("sábado, 31 de octubre – domingo, 1 de noviembre", Format.longDate("2026-10-31", "2026-11-01"))
+        assertEquals(Format.EventStatus.OPEN, Format.eventStatus(false, false, 29, 30))
+        assertEquals(Format.EventStatus.FULL, Format.eventStatus(false, false, 30, 30))
+        assertEquals(Format.EventStatus.LIVE, Format.eventStatus(false, true, 30, 30))  // empezó: ya no importa el cupo
+        assertEquals(Format.EventStatus.FINISHED, Format.eventStatus(true, true, 0, 30))
+    }
+
+    @Test
     fun errorDelBackend() {
         assertEquals("El evento ya alcanzó su capacidad máxima",
             ApiError.fromBody("""{"detail": "El evento ya alcanzó su capacidad máxima", "code": "EVENT_FULL"}"""))

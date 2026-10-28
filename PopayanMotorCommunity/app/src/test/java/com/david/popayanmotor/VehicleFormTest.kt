@@ -25,4 +25,26 @@ class VehicleFormTest {
         assertNull(VehicleForm.plate("ABC12345"))  // muy larga
         assertNull(VehicleForm.plate("ABC.12"))
     }
+
+    private val catalog = listOf("Mazda", "Mini", "Mercedes-Benz")
+
+    @Test
+    fun marca() {
+        assertEquals("Mazda", VehicleForm.brand("Mazda", "ignorado", catalog))
+        assertEquals("Great Wall", VehicleForm.brand("Otra", "  Great   Wall ", catalog))
+        assertNull(VehicleForm.brand("", "", catalog))             // sin elegir
+        assertNull(VehicleForm.brand("Otra", "", catalog))         // «Otra» sin escribir nada
+        assertNull(VehicleForm.brand("Otra", "otra", catalog))     // «Otra» no es una marca
+        assertNull(VehicleForm.brand("Otra", "X", catalog))
+        assertNull(VehicleForm.brand("Otra", "123", catalog))
+        assertNull(VehicleForm.brand("Otra", "<script>", catalog))
+        assertNull(VehicleForm.brand("Toyota", "", catalog))       // no está en el catálogo descargado
+    }
+
+    @Test
+    fun marcaAlEditar() {
+        assertEquals("Mazda" to "", VehicleForm.brandChoice("Mazda", catalog))
+        assertEquals("Mini" to "", VehicleForm.brandChoice("mini", catalog))
+        assertEquals("Otra" to "Great Wall", VehicleForm.brandChoice("Great Wall", catalog))
+    }
 }

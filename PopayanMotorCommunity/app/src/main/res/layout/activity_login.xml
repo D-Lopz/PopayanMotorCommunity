@@ -37,7 +37,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEmail"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.PopayanMotor.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/email">
@@ -51,7 +51,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilPassword"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.PopayanMotor.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -71,7 +71,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:textColor="@color/accent"
+            android:textColor="@color/accent_text"
             android:visibility="gone" />
 
         <com.google.android.material.button.MaterialButton
@@ -93,7 +93,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGoRegister"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Widget.PopayanMotor.Button.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"

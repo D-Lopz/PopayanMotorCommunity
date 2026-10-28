@@ -27,6 +27,47 @@ def test_vehicle_validations_and_duplicate_plate(client, member, member2):
     assert r.status_code == 409 and r.json()["code"] == "PLATE_EXISTS"
 
 
+def test_plate_case_and_own_plate(client, member, member2):
+    vid = client.post("/api/vehicles", json=vehicle_body(plate="abc123"), headers=member).json()["id"]
+    r = client.post("/api/vehicles", json=vehicle_body(plate="ABC123"), headers=member2)
+    assert r.status_code == 409 and r.json()["detail"] == "Ya existe un vehículo con esa placa"
+    # Editar conservando su propia placa (escrita en minúsculas) no es un duplicado
+    r = client.put(f"/api/vehicles/{vid}", json=vehicle_body(plate="abc-123", model="M4"), headers=member)
+    assert r.status_code == 200 and r.json()["plate"] == "ABC123"
+    other = client.post("/api/vehicles", json=vehicle_body(plate="XYZ789"), headers=member2).json()["id"]
+    r = client.put(f"/api/vehicles/{other}", json=vehicle_body(plate="abc123"), headers=member2)
+    assert r.status_code == 409 and r.json()["code"] == "PLATE_EXISTS"
+
+
+def test_plate_unique_constraint_when_check_is_skipped(client, member, member2, monkeypatch):
+    """Dos solicitudes simultáneas pasan la consulta previa: la restricción UNIQUE de la BD frena la segunda."""
+    from app.routers import vehicles
+    assert client.post("/api/vehicles", json=vehicle_body(), headers=member).status_code == 201
+    monkeypatch.setattr(vehicles, "_plate_taken", lambda *a, **k: False)
+    r = client.post("/api/vehicles", json=vehicle_body(plate="abc123"), headers=member2)
+    assert r.status_code == 409 and r.json()["code"] == "PLATE_EXISTS"
+
+
+def test_brand_catalog(client, member):
+    brands = client.get("/api/vehicles/brands", headers=member).json()
+    assert "Mazda" in brands and "Mini" in brands and "Otra" not in brands
+    assert client.get("/api/vehicles/brands").status_code == 401
+
+    def brand_of(value, plate):
+        r = client.post("/api/vehicles", json=vehicle_body(brand=value, plate=plate), headers=member)
+        return r.json()["brand"] if r.status_code == 201 else r.status_code
+
+    assert brand_of("  mAzDa ", "BRD001") == "Mazda"           # del catálogo → nombre oficial
+    assert brand_of("mercedes-benz", "BRD002") == "Mercedes-Benz"
+    assert brand_of("  Great   Wall ", "BRD003") == "Great Wall"  # personalizada, espacios normalizados
+    assert brand_of("Otra", "BRD004") == 422                    # «Otra» no es una marca
+    assert brand_of("otra ", "BRD005") == 422
+    assert brand_of("X", "BRD006") == 422                       # muy corta
+    assert brand_of("123", "BRD007") == 422                     # sin letras
+    assert brand_of("<script>", "BRD008") == 422
+    assert brand_of("A" * 31, "BRD009") == 422
+
+
 def test_vehicle_filters(client, member, admin):
     client.post("/api/vehicles", json=vehicle_body(), headers=member)
     client.post("/api/vehicles", json=vehicle_body(brand="Toyota", model="Hilux", type="Off-road", plate="XYZ789"), headers=member)

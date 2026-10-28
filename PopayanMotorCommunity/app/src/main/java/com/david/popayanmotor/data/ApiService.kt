@@ -64,6 +64,10 @@ interface ApiService {
     @GET("vehicles")
     suspend fun getVehicles(@Query("member_id") memberId: Int): List<Vehicle>
 
+    // Catálogo oficial de marcas (el formulario agrega «Otra» al final)
+    @GET("vehicles/brands")
+    suspend fun getVehicleBrands(): List<String>
+
     @GET("vehicles/{id}")
     suspend fun getVehicle(@Path("id") id: Int): Vehicle
 

@@ -41,6 +41,8 @@
 
         <activity android:name=".ui.RegistrationsActivity" />
 
+        <activity android:name=".ui.EventDetailActivity" />
+
         <activity
             android:name=".ui.VehicleFormActivity"
             android:windowSoftInputMode="adjustResize" />

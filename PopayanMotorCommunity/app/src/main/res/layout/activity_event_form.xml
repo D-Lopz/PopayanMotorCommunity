@@ -36,7 +36,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilName"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.PopayanMotor.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/event_name"
@@ -53,7 +53,7 @@
             <!-- Meet, Exhibición, Ruta, Competencia, Evento de sonido, Reunión, Otro -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilCategory"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.PopayanMotor.TextInputLayout.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -68,7 +68,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDescription"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.PopayanMotor.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -91,7 +91,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilDate"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.PopayanMotor.TextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -108,7 +108,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilTime"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.PopayanMotor.TextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
@@ -127,7 +127,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilEndDate"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.PopayanMotor.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -148,7 +148,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilLocation"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.PopayanMotor.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -171,7 +171,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilCapacity"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.PopayanMotor.TextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -187,7 +187,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilPrice"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.PopayanMotor.TextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
@@ -207,7 +207,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDistance"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.PopayanMotor.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -228,7 +228,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:textColor="@color/accent"
+                android:textColor="@color/accent_text"
                 android:visibility="gone" />
 
             <com.google.android.material.button.MaterialButton
@@ -241,17 +241,17 @@
             <!-- Solo al editar -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDelete"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.PopayanMotor.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:layout_marginTop="8dp"
                 android:text="@string/delete_event"
-                android:textColor="@color/accent"
+                android:textColor="@color/accent_text"
                 android:visibility="gone"
                 app:icon="@drawable/ic_delete"
                 app:iconGravity="textStart"
-                app:iconTint="@color/accent"
-                app:strokeColor="@color/accent" />
+                app:iconTint="@color/accent_text"
+                app:strokeColor="@color/accent_text" />
         </LinearLayout>
     </ScrollView>
 

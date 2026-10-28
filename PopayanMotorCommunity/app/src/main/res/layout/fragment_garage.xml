@@ -27,7 +27,8 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/add_vehicle"
             android:src="@drawable/ic_add"
-            android:tint="@color/text_primary" />
+            app:tint="@color/text_primary"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
     </FrameLayout>
 
     <View
@@ -42,7 +43,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:textAllCaps="true"
-        android:textColor="@color/accent"
+        android:textColor="@color/accent_text"
         android:textSize="12sp"
         android:textStyle="bold" />
 
@@ -108,7 +109,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRetry"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.PopayanMotor.Button.Outlined"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -118,7 +119,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAddBottom"
-        style="@style/Widget.Material3.Button.OutlinedButton"
+        style="@style/Widget.PopayanMotor.Button.Outlined"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_margin="16dp"

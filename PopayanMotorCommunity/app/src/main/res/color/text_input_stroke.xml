@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Borde de los campos: rojo legible al enfocar, neutro el resto del tiempo -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/accent_text" android:state_focused="true" />
+    <item android:color="@color/outline" android:state_enabled="false" />
+    <item android:color="@color/outline_strong" />
+</selector>

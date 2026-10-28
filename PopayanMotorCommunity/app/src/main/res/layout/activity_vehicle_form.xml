@@ -34,25 +34,43 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Marca: catálogo del backend (GET /api/vehicles/brands) + «Otra» al final -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilBrand"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.PopayanMotor.TextInputLayout.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/brand"
-                app:placeholderText="@string/brand_hint">
+                android:hint="@string/brand">
 
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
                     android:id="@+id/etBrand"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Solo con «Otra» -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilBrandOther"
+                style="@style/Widget.PopayanMotor.TextInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="@string/brand_other"
+                android:visibility="gone"
+                app:placeholderText="@string/brand_hint">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etBrandOther"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:inputType="textCapWords"
-                    android:maxLength="50" />
+                    android:maxLength="30" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilModel"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.PopayanMotor.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -75,7 +93,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilYear"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.PopayanMotor.TextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -91,7 +109,7 @@
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilPlate"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    style="@style/Widget.PopayanMotor.TextInputLayout"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
@@ -109,7 +127,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilType"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.PopayanMotor.TextInputLayout.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -124,7 +142,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDescription"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.PopayanMotor.TextInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -160,7 +178,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:textColor="@color/accent"
+                android:textColor="@color/accent_text"
                 android:visibility="gone" />
 
             <com.google.android.material.button.MaterialButton

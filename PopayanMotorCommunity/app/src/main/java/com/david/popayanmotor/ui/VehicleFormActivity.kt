@@ -1,6 +1,7 @@
 package com.david.popayanmotor.ui
 
 import android.os.Bundle
+import android.text.InputFilter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -29,6 +30,22 @@ object VehicleForm {
     /** " abc-123 " → "ABC123"; null si no tiene 5 a 7 letras o números. */
     fun plate(text: String): String? =
         text.trim().uppercase().replace(" ", "").replace("-", "").takeIf { PLATE_RE.matches(it) }
+
+    // Igual a OTHER_BRAND y CUSTOM_BRAND_RE de app/schemas/vehicle.py; el catálogo llega del backend.
+    const val OTHER_BRAND = "Otra"
+    private val CUSTOM_BRAND_RE = Regex("^(?=.*[A-Za-zÀ-ÖØ-öø-ÿ])[A-Za-zÀ-ÖØ-öø-ÿ0-9 .&'-]{2,30}$")
+
+    /** Marca a enviar: la elegida del catálogo, o con «Otra» la escrita ("  Great   Wall " → "Great Wall"). null si falta o no es válida. */
+    fun brand(selected: String, custom: String, catalog: List<String>): String? = when (selected) {
+        in catalog -> selected
+        OTHER_BRAND -> custom.trim().split(Regex("\\s+")).joinToString(" ")
+            .takeIf { CUSTOM_BRAND_RE.matches(it) && !it.equals(OTHER_BRAND, ignoreCase = true) }
+        else -> null
+    }
+
+    /** Al editar: qué se selecciona y qué va en el campo «Otra». "Mazda" → ("Mazda", ""); "Great Wall" → ("Otra", "Great Wall"). */
+    fun brandChoice(brand: String, catalog: List<String>): Pair<String, String> =
+        catalog.firstOrNull { it.equals(brand, ignoreCase = true) }?.let { it to "" } ?: (OTHER_BRAND to brand)
 }
 
 /** Crear (sin EXTRA_ID) o editar (con EXTRA_ID) un vehículo del garaje. */
@@ -41,6 +58,7 @@ class VehicleFormActivity : AppCompatActivity() {
     private lateinit var binding: ActivityVehicleFormBinding
     private val vehicleId by lazy { intent.getIntExtra(EXTRA_ID, -1).takeIf { it != -1 } }
     private val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+    private var brands: List<String> = emptyList()  // catálogo del backend
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,19 +69,26 @@ class VehicleFormActivity : AppCompatActivity() {
         binding.toolbar.setTitle(if (vehicleId == null) R.string.add_vehicle else R.string.edit_vehicle)
         binding.toolbar.setNavigationOnClickListener { finish() }
         binding.etType.setSimpleItems(resources.getStringArray(R.array.vehicle_types))
+        binding.etPlate.filters += InputFilter.AllCaps()  // "abc123" se ve "ABC123" al escribir o pegar (conserva maxLength)
         binding.btnSave.setOnClickListener { save() }
 
-        // Al rotar, los campos se restauran solos; solo se cargan del backend la primera vez.
-        if (savedInstanceState == null) vehicleId?.let { load(it) }
+        binding.etBrand.setOnItemClickListener { _, _, _, _ -> showBrandOther() }
+
+        // Al rotar, los campos se restauran solos; el vehículo solo se carga del backend la primera vez.
+        load(fillVehicle = savedInstanceState == null)
     }
 
-    /** Consulta el detalle (GET /api/vehicles/{id}); el backend responde 403 si no es tuyo. */
-    private fun load(id: Int) {
+    /** Catálogo de marcas y, al editar, el detalle (GET /api/vehicles/{id}); el backend responde 403 si no es tuyo. */
+    private fun load(fillVehicle: Boolean) {
         lifecycleScope.launch {
             setLoading(true)
             binding.form.isVisible = false
             try {
-                fill(RetrofitClient.api.getVehicle(id))
+                brands = RetrofitClient.api.getVehicleBrands()
+                binding.etBrand.setSimpleItems((brands + VehicleForm.OTHER_BRAND).toTypedArray())
+                val id = vehicleId
+                if (fillVehicle && id != null) fill(RetrofitClient.api.getVehicle(id))
+                showBrandOther()
                 binding.form.isVisible = true
             } catch (e: Exception) {
                 fail(e)
@@ -74,7 +99,9 @@ class VehicleFormActivity : AppCompatActivity() {
     }
 
     private fun fill(v: Vehicle) {
-        binding.etBrand.setText(v.brand)
+        val (selected, custom) = VehicleForm.brandChoice(v.brand, brands)
+        binding.etBrand.setText(selected, false)
+        binding.etBrandOther.setText(custom)
         binding.etModel.setText(v.model)
         binding.etYear.setText(v.year.toString())
         binding.etPlate.setText(v.plate)
@@ -88,21 +115,28 @@ class VehicleFormActivity : AppCompatActivity() {
         }
     }
 
+    private fun showBrandOther() {
+        binding.tilBrandOther.isVisible = binding.etBrand.text.toString() == VehicleForm.OTHER_BRAND
+    }
+
     private fun save() {
-        val brand = binding.etBrand.text.toString().trim()
+        val selectedBrand = binding.etBrand.text.toString()
+        val brand = VehicleForm.brand(selectedBrand, binding.etBrandOther.text.toString(), brands)
         val model = binding.etModel.text.toString().trim()
         val year = VehicleForm.year(binding.etYear.text.toString(), currentYear)
         val plate = VehicleForm.plate(binding.etPlate.text.toString())
         val type = binding.etType.text.toString()
         val description = binding.etDescription.text.toString().trim()
 
-        binding.tilBrand.error = if (brand.isNotEmpty()) null else getString(R.string.error_required)
+        binding.tilBrand.error = if (selectedBrand.isNotEmpty()) null else getString(R.string.error_brand)
+        binding.tilBrandOther.error =
+            if (brand != null || selectedBrand != VehicleForm.OTHER_BRAND) null else getString(R.string.error_brand_other)
         binding.tilModel.error = if (model.isNotEmpty()) null else getString(R.string.error_required)
         binding.tilYear.error = if (year != null) null else getString(R.string.error_year, VehicleForm.maxYear(currentYear))
         binding.tilPlate.error = if (plate != null) null else getString(R.string.error_plate)
         binding.tilType.error =
             if (type in resources.getStringArray(R.array.vehicle_types)) null else getString(R.string.error_type)
-        if (year == null || plate == null ||
+        if (brand == null || year == null || plate == null ||
             listOf(binding.tilBrand, binding.tilModel, binding.tilType).any { it.error != null }) return
 
         val body = VehicleRequest(brand, model, year, type, plate, description.ifEmpty { null }, binding.swPrimary.isChecked)

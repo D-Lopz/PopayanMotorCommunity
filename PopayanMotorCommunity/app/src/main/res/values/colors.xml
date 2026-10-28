@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Identidad Luxury Racing: carbón #202020 (~60 %), marfil #F2F0ED y neutros (~30 %), rojo racing #C8102E (~10 %).
+     Los layouts usan estos nombres; ningún layout repite un hexadecimal. -->
 <resources>
-    <color name="bg">#0B0C0E</color>
-    <color name="surface">#16181C</color>
-    <color name="outline">#2A2D33</color>
-    <color name="accent">#E1292F</color>
-    <color name="text_primary">#F6F6F4</color>
-    <color name="text_secondary">#8D9199</color>
-    <color name="success">#34C77B</color>  <!-- insignia de administrador -->
+    <!-- Carbón y superficies derivadas: profundidad sin negro puro -->
+    <color name="bg">#202020</color>             <!-- fondo de pantallas -->
+    <color name="surface">#2A2A2A</color>        <!-- tarjetas, barra inferior -->
+    <color name="surface_high">#333333</color>   <!-- diálogos, menús, barra del detalle -->
+    <color name="outline">#3D3D3D</color>        <!-- bordes de tarjetas y divisores -->
+    <color name="outline_strong">#77736D</color> <!-- borde de campos y botones delineados (3,6:1 sobre carbón) -->
+
+    <!-- Rojo racing: rellenos (botones, chips, FAB). Marfil sobre rojo = 5,2:1 -->
+    <color name="accent">#C8102E</color>
+    <!-- Rojo derivado para TEXTO pequeño e íconos sobre carbón: #C8102E da 2,8:1; este da 4,5:1 -->
+    <color name="accent_text">#F2475A</color>
+
+    <!-- Marfil y neutro cálido -->
+    <color name="text_primary">#F2F0ED</color>   <!-- 14,3:1 sobre carbón -->
+    <color name="text_secondary">#A9A49C</color> <!-- 6,6:1 sobre carbón, 5,8:1 sobre tarjetas -->
+
+    <!-- Semánticos -->
+    <color name="success">#34C77B</color>        <!-- insignia de administrador -->
+    <color name="success_bg">#1A34C77B</color>
+    <color name="error">#FF8A80</color>          <!-- mensajes de validación -->
 </resources>

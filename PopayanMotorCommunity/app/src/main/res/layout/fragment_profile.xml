@@ -337,7 +337,7 @@
                                 android:importantForAccessibility="no"
                                 android:padding="9dp"
                                 android:src="@drawable/ic_shield"
-                                app:tint="@color/accent" />
+                                app:tint="@color/accent_text" />
 
                             <LinearLayout
                                 android:layout_width="0dp"
@@ -374,14 +374,14 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnLogout"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.PopayanMotor.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:text="@string/logout"
-                    android:textColor="@color/accent"
+                    android:textColor="@color/accent_text"
                     app:icon="@drawable/ic_logout"
-                    app:iconTint="@color/accent" />
+                    app:iconTint="@color/accent_text" />
 
                 <TextView
                     android:id="@+id/tvVersion"
@@ -419,7 +419,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRetry"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.PopayanMotor.Button.Outlined"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"

@@ -11,7 +11,7 @@ from app.dependencies import get_current_member, is_admin
 from app.services import event_service
 from app.models import Member, Registration, Vehicle
 from app.models.enums import VehicleType
-from app.schemas.vehicle import VehicleIn, VehicleOut
+from app.schemas.vehicle import BRANDS, VehicleIn, VehicleOut
 
 router = APIRouter(prefix="/vehicles", tags=["Vehicles"])
 
@@ -65,6 +65,13 @@ def list_vehicles(
     if type:
         query = query.where(Vehicle.type == type)
     return db.scalars(query).all()
+
+
+# Va antes de "/{vehicle_id}": si no, FastAPI intentaría leer "brands" como un id.
+@router.get("/brands", response_model=list[str])
+def list_brands(current: Member = Depends(get_current_member)):
+    """Catálogo oficial de marcas; el selector de Android agrega al final la opción «Otra»."""
+    return list(BRANDS)
 
 
 @router.get("/{vehicle_id}", response_model=VehicleOut)

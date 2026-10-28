@@ -23,6 +23,25 @@ object Format {
         return if (endDate == null || endDate == date) start else "$start – ${day(endDate)} ${month(endDate)}"
     }
 
+    /** "2026-10-31" → "sábado, 31 de octubre"; con fin → "sábado, 31 de octubre – domingo, 1 de noviembre" */
+    fun longDate(date: String, endDate: String?): String {
+        fun one(d: String): String {
+            val parsed = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(d)!!
+            return SimpleDateFormat("EEEE, d 'de' MMMM", Locale("es", "CO")).format(parsed)
+        }
+        return if (endDate == null || endDate == date) one(date) else "${one(date)} – ${one(endDate)}"
+    }
+
+    enum class EventStatus { OPEN, FULL, LIVE, FINISHED }
+
+    /** Estado del detalle: terminado > en curso (ya empezó) > agotado > con cupos. Igual a las reglas del backend. */
+    fun eventStatus(finished: Boolean, started: Boolean, registered: Int, capacity: Int) = when {
+        finished -> EventStatus.FINISHED
+        started -> EventStatus.LIVE
+        registered >= capacity -> EventStatus.FULL
+        else -> EventStatus.OPEN
+    }
+
     /** "10:00:00" → "10:00" */
     fun time(time: String) = time.take(5)
 

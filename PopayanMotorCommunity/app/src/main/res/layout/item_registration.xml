@@ -31,7 +31,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textColor="@color/accent"
+                    android:textColor="@color/accent_text"
                     android:textIsSelectable="true"
                     android:textSize="12sp"
                     android:textStyle="bold" />
@@ -87,14 +87,14 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancel"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Widget.PopayanMotor.Button.Text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/cancel_registration"
-            android:textColor="@color/accent"
+            android:textColor="@color/accent_text"
             app:icon="@drawable/ic_close"
             app:iconGravity="textStart"
             app:iconSize="16dp"
-            app:iconTint="@color/accent" />
+            app:iconTint="@color/accent_text" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

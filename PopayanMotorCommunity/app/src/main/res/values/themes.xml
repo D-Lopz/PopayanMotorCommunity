@@ -4,12 +4,77 @@
         <item name="colorPrimary">@color/accent</item>
         <item name="colorOnPrimary">@color/text_primary</item>
         <item name="colorSecondary">@color/accent</item>
+        <item name="colorOnSecondary">@color/text_primary</item>
+        <!-- Chip seleccionado: relleno rojo con texto marfil -->
+        <item name="colorSecondaryContainer">@color/accent</item>
+        <item name="colorOnSecondaryContainer">@color/text_primary</item>
         <item name="android:colorBackground">@color/bg</item>
         <item name="colorSurface">@color/bg</item>
-        <item name="colorSurfaceContainer">@color/surface</item>
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorOnSurfaceVariant">@color/text_secondary</item>
-        <item name="colorOutline">@color/outline</item>
+        <item name="colorSurfaceContainerLowest">@color/bg</item>
+        <item name="colorSurfaceContainerLow">@color/surface</item>
+        <item name="colorSurfaceContainer">@color/surface</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_high</item>
+        <item name="colorSurfaceContainerHighest">@color/surface_high</item>
+        <item name="colorOutline">@color/outline_strong</item>
+        <item name="colorOutlineVariant">@color/outline</item>
+        <item name="colorError">@color/error</item>
+        <!-- Superficies neutras: sin tinte rojo por elevación en menús desplegables y tarjetas -->
+        <item name="elevationOverlayEnabled">false</item>
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:navigationBarColor">@color/surface</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.PopayanMotor.Dialog</item>
+    </style>
+
+    <!-- Diálogos sobre superficie elevada; sus botones y radios en el rojo legible -->
+    <style name="ThemeOverlay.PopayanMotor.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorPrimary">@color/accent_text</item>
+        <item name="colorSurface">@color/surface_high</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_high</item>
+        <!-- Sin esto Material mezcla el rojo con la superficie y el diálogo se ve rojizo -->
+        <item name="elevationOverlayEnabled">false</item>
+    </style>
+
+    <!-- Campos: borde neutro y, al enfocar, borde y etiqueta en el rojo legible -->
+    <style name="Widget.PopayanMotor.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/text_input_stroke</item>
+        <item name="hintTextColor">@color/accent_text</item>
+        <item name="boxCornerRadiusTopStart">10dp</item>
+        <item name="boxCornerRadiusTopEnd">10dp</item>
+        <item name="boxCornerRadiusBottomStart">10dp</item>
+        <item name="boxCornerRadiusBottomEnd">10dp</item>
+    </style>
+
+    <style name="Widget.PopayanMotor.TextInputLayout.Dense" parent="Widget.Material3.TextInputLayout.OutlinedBox.Dense">
+        <item name="boxStrokeColor">@color/text_input_stroke</item>
+        <item name="hintTextColor">@color/accent_text</item>
+        <item name="boxCornerRadiusTopStart">10dp</item>
+        <item name="boxCornerRadiusTopEnd">10dp</item>
+        <item name="boxCornerRadiusBottomStart">10dp</item>
+        <item name="boxCornerRadiusBottomEnd">10dp</item>
+    </style>
+
+    <style name="Widget.PopayanMotor.TextInputLayout.Dropdown" parent="Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
+        <item name="boxStrokeColor">@color/text_input_stroke</item>
+        <item name="hintTextColor">@color/accent_text</item>
+        <item name="boxCornerRadiusTopStart">10dp</item>
+        <item name="boxCornerRadiusTopEnd">10dp</item>
+        <item name="boxCornerRadiusBottomStart">10dp</item>
+        <item name="boxCornerRadiusBottomEnd">10dp</item>
+    </style>
+
+    <!-- Botón secundario (Reintentar, Agregar vehículo): marfil con borde neutro -->
+    <style name="Widget.PopayanMotor.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="iconTint">@color/text_primary</item>
+        <item name="strokeColor">@color/outline_strong</item>
+    </style>
+
+    <!-- Botón de texto (enlaces, acciones de tarjeta): rojo legible por defecto -->
+    <style name="Widget.PopayanMotor.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/accent_text</item>
+        <item name="iconTint">@color/accent_text</item>
     </style>
 
     <!-- Títulos: condensada en negrita (shortcut: fuente del sistema; Barlow Condensed se agrega desde Resource Manager) -->
