@@ -18,3 +18,5 @@ DATABASE_URL = _required("DATABASE_URL")
 SECRET_KEY = _required("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "120"))
+# Ruta al archivo de certificados raíz para conectar a MySQL con TLS verificado (Azure). Vacío = sin TLS (local).
+DB_SSL_CA = os.getenv("DB_SSL_CA")

@@ -4,14 +4,18 @@ import com.david.popayanmotor.BuildConfig
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    // Sale de api.baseUrl en local.properties (ver app/build.gradle.kts); sin ella usa el emulador.
+    // debug: api.baseUrl (o el emulador); release: api.releaseUrl. Ver app/build.gradle.kts.
     private const val BASE_URL = BuildConfig.API_BASE_URL
 
     // Agrega "Authorization: Bearer <token>" a todas las peticiones si hay sesión.
+    // Timeouts largos: el plan gratis de Azure duerme la app y la primera petición puede tardar ~1 min.
     private val client = OkHttpClient.Builder()
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(90, TimeUnit.SECONDS)
         .addInterceptor { chain ->
             val token = SessionManager.token
             val request = if (token != null) {

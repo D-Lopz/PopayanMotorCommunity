@@ -2,9 +2,11 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-from app.core.config import DATABASE_URL
+from app.core.config import DATABASE_URL, DB_SSL_CA
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+# Con "ca", PyMySQL verifica el certificado y el nombre del servidor.
+connect_args = {"ssl": {"ca": DB_SSL_CA}} if DB_SSL_CA else {}
+engine = create_engine(DATABASE_URL, pool_pre_ping=True, connect_args=connect_args)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 

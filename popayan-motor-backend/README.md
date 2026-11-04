@@ -319,6 +319,7 @@ Esta estructura es orientativa. Los nombres y archivos definitivos deben coincid
 - **Esquema OpenAPI:** `http://localhost:8000/openapi.json`
 - **Esquema de la base de datos:** `sql/schema.sql`
 - **Colección de pruebas:** `postman/PopayanMotor.postman_collection.json`
+- **Despliegue en Azure:** `DEPLOY.md`
 
 La documentación de Swagger permite consultar las rutas implementadas, sus parámetros, los esquemas de entrada y salida y las respuestas declaradas.
 
